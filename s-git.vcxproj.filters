@@ -14,9 +14,15 @@
     <ClCompile Include="s-git.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="init\init.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="s-git.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdParty\cmdline.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

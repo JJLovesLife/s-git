@@ -15,6 +15,8 @@ static int help(int, const char*[]);
 static void initFuncTable() {
 	funcTable.emplace("test", Command{ test, "test usage function." });
 	funcTable.emplace("help", Command{ help, "show this description." });
+
+	funcTable.emplace("init", InitCommand);
 }
 
 static void usage() {
@@ -26,15 +28,26 @@ static void usage() {
 		std::cout << '\t' << func.first << ": " << func.second.description << '\n';
 	}
 
-	std::cout << "\nUse " << GIT_NAME << " <command> --help for more information.\n";
+	std::cout << "\nUse " << GIT_NAME << " <command> --help for command specific usage.\n";
 	std::cout.flush();
 }
 
 int main(int argc, const char *argv[]) {
 	initFuncTable();
 
-	if (argc >= 2 && funcTable.count(argv[1]) != 0) {
-		return funcTable[argv[1]].function(argc, argv);
+	if (argc < 2) {
+		usage();
+		return 1;
+	}
+
+	auto commandIt = funcTable.find(argv[1]);
+	if (commandIt != funcTable.end()) {
+		// drop argv[0] and change argv[1]
+		std::string exeName(GIT_NAME);
+		exeName += ' ';
+		exeName += argv[1];
+		argv[1] = exeName.c_str();
+		return commandIt->second.function(argc - 1, argv + 1);
 	} else {
 		usage();
 		return 1;
