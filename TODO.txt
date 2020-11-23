@@ -1,0 +1,8 @@
+// [COMMAND]
+// TODO: init
+// TODO: status
+// TODO: commit
+// TODO: log
+
+// [CODE]
+// TODO: adding namespace
