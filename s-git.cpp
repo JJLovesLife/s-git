@@ -3,6 +3,10 @@
 #include <string>
 #include <iostream>
 
+#include "object/object.h"
+/*temp*/
+#include <filesystem>
+
 extern const char *GIT_NAME = "s-git";
 extern const char *GIT_DESC = "s-git"
 	" is a simple but not stupid version-control system works like git.";
@@ -17,6 +21,8 @@ static void initFuncTable() {
 	funcTable.emplace("help", Command{ help, "show this description." });
 
 	funcTable.emplace("init", InitCommand);
+	funcTable.emplace("status", StatusCommand);
+	funcTable.emplace("commit", CommitCommand);
 }
 
 static void usage() {
@@ -55,7 +61,41 @@ int main(int argc, const char *argv[]) {
 }
 
 int test(int, const char*[]) {
+	std::vector<object> path;
+	readTree("9ea16e1d6cbc67d41da68b7686afd8be150ae7be", path);
+
+	/*char* buffer;
+	int size = readFile(fs::path(".\\ss\\a.txt"), buffer);
+	hash_object("blob", buffer, size);*/
+	/*
+	*/
+	/*std::string sha1 = "08c8644401fef5323d1071a15e3c101bea50a657";
+	std::vector<object> path;
+	readTree(sha1, path);*/
+	/*char buf[20];
+	for (int i = 0; i <= 19; ++i) {
+		buf[i]= i + 'a';
+	}
+	std::string data(buf+5,5);
+	std::cout << data;*/
+	/*char* buf = new char[20];
+	buf[0] = '\0'; 
+
+	for (int i = 1; i <= 19; ++i) {
+		buf[i] = i + 'a';
+	}
+	buf[5] = '\0';
+	buf[10] = '\0';
+	hash_object("blob", buf , 20);
+	/**/
+
+	/*namespace fs = std::filesystem;
+	fs::path p1("C:\\temp");
+	p1 /= "user";
+	p1 /= "data";
+	std::cout << p1 << "\n";
 	std::cout << "This is a test command." << std::endl;
+	return 0;*/
 	return 0;
 }
 

@@ -17,12 +17,30 @@
     <ClCompile Include="init\init.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="status\status.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="object\object.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="cache\file.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="commit\commit.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="s-git.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="3rdParty\cmdline.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="cache\file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="object\object.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

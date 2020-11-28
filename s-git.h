@@ -11,3 +11,5 @@ struct Command {
 };
 
 extern Command InitCommand;
+extern Command StatusCommand;
+extern Command CommitCommand;
