@@ -1,4 +1,4 @@
-﻿// [COMMAND]
+// [COMMAND]
 // TODO: init 
 // TODO: status 
 // TODO: commit

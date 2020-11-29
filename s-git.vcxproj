@@ -131,6 +131,7 @@
     <ClCompile Include="object\object.cpp" />
     <ClCompile Include="s-git.cpp" />
     <ClCompile Include="status\status.cpp" />
+    <ClCompile Include="test\test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rdParty\cmdline.h" />

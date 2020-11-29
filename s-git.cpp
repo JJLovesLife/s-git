@@ -4,21 +4,24 @@
 #include <iostream>
 
 #include "object/object.h"
-/*temp*/
-#include <filesystem>
 
 extern const char *GIT_NAME = "s-git";
 extern const char *GIT_DESC = "s-git"
 	" is a simple but not stupid version-control system works like git.";
+extern std::optional<std::filesystem::path> GIT_DIR{};
+extern std::optional<std::filesystem::path> ROOT_DIR{};
+extern std::filesystem::path CWD{};
 
 static std::map<std::string, Command> funcTable;
 
 static int test(int, const char*[]);
 static int help(int, const char*[]);
+static int version(int, const char*[]);
 
 static void initFuncTable() {
-	funcTable.emplace("test", Command{ test, "test usage function." });
 	funcTable.emplace("help", Command{ help, "show this description." });
+	funcTable.emplace("version", Command{ version, "version info." });
+	funcTable.emplace("test", TestCommand);
 
 	funcTable.emplace("init", InitCommand);
 	funcTable.emplace("status", StatusCommand);
@@ -38,6 +41,22 @@ static void usage() {
 	std::cout.flush();
 }
 
+static void setupDir() {
+	CWD = std::filesystem::current_path();
+
+	auto root = CWD.root_path();
+	auto path = CWD;
+	while (path != root) {
+		auto git = path / (std::string{ '.' } + GIT_NAME);
+		if (std::filesystem::exists(git) && std::filesystem::is_directory(git)) {
+			GIT_DIR = git;
+			ROOT_DIR = path;
+			return;
+		}
+		path = path.parent_path();
+	}
+}
+
 int main(int argc, const char *argv[]) {
 	initFuncTable();
 
@@ -53,11 +72,20 @@ int main(int argc, const char *argv[]) {
 		exeName += ' ';
 		exeName += argv[1];
 		argv[1] = exeName.c_str();
+
+		setupDir();
 		return commandIt->second.function(argc - 1, argv + 1);
 	} else {
+		std::cout << GIT_NAME << ": '" << argv[1] << "' is not a "
+			<< GIT_NAME << " command.\n";
 		usage();
 		return 1;
 	}
+}
+
+int version(int, const char*[]) {
+	std::cout << GIT_NAME << " versoin 0.1.0" << std::endl;
+	return 0;
 }
 
 int test(int, const char*[]) {

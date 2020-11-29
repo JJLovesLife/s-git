@@ -1,5 +1,6 @@
 #include "../s-git.h"
 #include "../cache/file.h"
+
 int initMain(int argc, const char* argv[]);
 extern Command InitCommand{
 	initMain,
@@ -12,26 +13,26 @@ extern Command InitCommand{
 namespace fs = std::filesystem;
 	
 int initMain(int argc, const char* argv[]) {
-
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
-	fs::path gitDir(std::string{ '.' } + GIT_NAME);
 
-	if (fs::exists(gitDir)) {
+	if (GIT_DIR.has_value()) {
 		std::cerr << "Error: " << GIT_NAME << " repository already exists" << std::endl;
 		return 1;
 	}
+
+	fs::path gitDir(std::string{ '.' } + GIT_NAME);
 
 	if (!fs::create_directories(gitDir)) {
 		std::cerr << "Error: failed to create " << gitDir << std::endl;
 		return 1;
 	}else{
-
-		for (auto path:{"objects","refs","refs\\head"}){
+		for (auto path:{"objects","refs","refs/head"}){
 			fs::path dir = (gitDir/path);
 			//std::cout << gitDir << std::endl;
 			fs::create_directories(dir);
 		}
+		// TODO: J.J. remove this devil cast
 		write_file(gitDir / "HEAD", (char *)"ref: refs/heads/main",strlen("ref: refs/heads/main"));
 	}
 
