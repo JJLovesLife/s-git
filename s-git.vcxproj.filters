@@ -43,6 +43,9 @@
     <ClInclude Include="object\object.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="3rdParty\sha1.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />

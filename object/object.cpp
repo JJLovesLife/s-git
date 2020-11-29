@@ -1,4 +1,5 @@
 #include "object.h"
+#include "..\3rdParty\sha1.hpp"
 #include <string>
 
 
@@ -186,19 +187,22 @@ void readTree(std::string sha1, std::vector<object>& path) {
 
 std::string
 hash_object(const char* object_type, char * buf , long unsigned len ,bool write){
-	
-	SHA_CTX c;
-	//std::cout << object_type << " " << len << "\n";
 	/* Generate the header */
-	unsigned char hdr[50];
-	int hdrlen;
-	hdrlen = (int)sprintf((char *)hdr, "%s %lu ", object_type, len);
+	std::stringstream hdrStream;
+	hdrStream << object_type << ' ' << len << '\0';
+	std::string hdr = hdrStream.str();
+
+	SHA1 checksum;
+	checksum.update(hdr);
+	std::stringstream bufStream;
+	bufStream.write(buf, len);
+	checksum.update(bufStream);
+
+	auto resultStr = checksum.final();
 	unsigned char result[20];
-	/* Sha1.. */
-	SHA1_Init(&c);
-	SHA1_Update(&c, hdr, (size_t)hdrlen);
-	SHA1_Update(&c, buf, len);
-	SHA1_Final(result, &c);
+	for (size_t i = 0; i < 20; i++) {
+		result[i] = resultStr[i];
+	}
 
 	std::stringstream shastr;
 	shastr << std::hex << std::setfill('0');
@@ -220,16 +224,16 @@ hash_object(const char* object_type, char * buf , long unsigned len ,bool write)
 		objectDir/=sha12;
 		objectDir/=sha128;
 		
-		char *data = new char[(long unsigned)hdrlen + len];
+		char *data = new char[(long unsigned)hdr.size() + len];
 
-		memcpy(data , hdr, hdrlen);
-		memcpy(data + hdrlen, buf, len);
+		memcpy(data , hdr.data(), hdr.size());
+		memcpy(data + hdr.size(), buf, len);
 
 		//std::cout << objectDir << "\n";
 
 		//write_file(objectDir, (char *)data ,);
 
-		write_file(objectDir, data, hdrlen + len );
+		write_file(objectDir, data, hdr.size() + len );
 		//delete data;
 		//delete[] data;
 	}
