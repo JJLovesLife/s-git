@@ -329,6 +329,8 @@ paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>&
 	//int level = 1;
 	//std::cout << "start\n";
 	for (auto& it : list) {
+		if (it.path() == GIT_DIR) continue; // .s-git will not be archived
+
 		auto filename = it.path().filename();
 		if (fs::is_directory(it.status())) {
 			//std::cout << std::lead << "[+] " << filename << "\n";

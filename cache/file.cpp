@@ -2,7 +2,7 @@
 #include "../s-git.h"
 
 void 
-write_file(fs::path dir, char* data ,int len) {
+write_file(fs::path dir, const char* data ,int len) {
 	//"""Write data bytes to file at given path."""
 	//std::cout << dir.parent_path() << "\n";
 	if (!fs::exists(dir.parent_path())) {
@@ -11,6 +11,13 @@ write_file(fs::path dir, char* data ,int len) {
 	std::ofstream outfile;
 	outfile.open(dir, std::ios::out | std::ios::trunc | std::ios::binary);
 	outfile.write(data, len);
+	outfile.close();
+}
+
+void
+write_file(const fs::path &path, const std::vector<char> &data) {
+	std::ofstream outfile(path, std::ios::out | std::ios::trunc | std::ios::binary);
+	outfile.write(data.data(), data.size());
 	outfile.close();
 }
 
@@ -35,6 +42,23 @@ readFile(fs::path dir,char * &buffer ) {
 	t.close();
 	//write_file(fs::path{ ".//todo1.txt" }, buffer, length);
 	return length;
+}
+
+std::vector<char>
+readFile(const fs::path &path) {
+	if (!fs::is_regular_file(path)) {
+		return {};
+	}
+
+	std::ifstream file(path, std::ios::in | std::ios::binary);
+	if (!file.is_open()) {
+		return {};
+	}
+
+	std::vector<char> buffer(fs::file_size(path));
+	file.read(buffer.data(), buffer.size());
+	file.close();
+	return buffer;
 }
 
 int find(char* data, char t, int size) {  

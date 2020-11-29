@@ -33,7 +33,8 @@ int initMain(int argc, const char* argv[]) {
 			fs::create_directories(dir);
 		}
 		// TODO: J.J. remove this devil cast
-		write_file(gitDir / "HEAD", (char *)"ref: refs/heads/main",strlen("ref: refs/heads/main"));
+		const char *HeadContent = "ref: refs/heads/main";
+		write_file(gitDir / "HEAD", HeadContent, std::char_traits<char>::length(HeadContent));
 	}
 
 	std::cout << "Initialized empty " << GIT_NAME << " repository in "

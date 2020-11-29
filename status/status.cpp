@@ -50,13 +50,19 @@ int
 status(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
-	fs::path workDir = fs::path(".");
+	if (!GIT_DIR.has_value()) {
+		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)";
+		return 1;
+	}
+
+	//fs::path workDir = fs::path(".");
 
 	//std::set<index> indexWork;
 	std::unordered_set<std::optional<fs::path>, opt_path_hash> Pathes;
 	//std::vector<fs::path> Pathes;
 
-	paths(workDir, Pathes);
+	//paths(workDir, Pathes);
+	paths(ROOT_DIR.value(), Pathes);
 	std::string commitSha1 = readMain();
 	
 	//std::cout << sha1 << "\n";
