@@ -318,7 +318,7 @@ fileTree(fs::path path ,std::set<index> &indexSet) {
 }
 */
 void
-paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>& Pathes) {
+paths(fs::path path, std::unordered_set<fs::path, opt_path_hash>& Pathes) {
 	//std::cout << "start\n";
 	fs::directory_entry entry(path);		//文件入口
 	if (entry.status().type() != fs::file_type::directory) {
@@ -331,7 +331,7 @@ paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>&
 	for (auto& it : list) {
 		if (it.path() == GIT_DIR) continue; // .s-git will not be archived
 
-		auto filename = it.path().filename();
+		//auto filename = it.path().filename();
 		if (fs::is_directory(it.status())) {
 			//std::cout << std::lead << "[+] " << filename << "\n";
 			//DisplayDirTree(entry, level + 1);
@@ -339,7 +339,9 @@ paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>&
 			//std::cout << filename << "\n";
 			//std::cout << "\n";
 		}
-		else {
+		else if (fs::is_regular_file(it)) {
+			Pathes.insert(it.path());
+			/* // TODOL: J.J. clear
 			if (it.path().has_extension() && it.path().extension() == ".txt") { //修改 todo   fs::is_regular_file(it.status())
 				Pathes.insert(it.path());
 				//std::cout << filename << "\n";
@@ -351,6 +353,7 @@ paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>&
 				//std::cout << filename << "\n";
 				//std::cerr << "Error: " << " is not a directory and is not a file" << std::endl;
 			}
+			*/
 		}
 	}
 }

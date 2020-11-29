@@ -10,7 +10,6 @@
 #include "../cache/file.h"
 
 #include <filesystem>
-#include <optional>
 #include <unordered_set>
 #include <functional >
 #include <unordered_map>
@@ -27,8 +26,8 @@ struct object {
 
 
 struct opt_path_hash {
-	std::size_t operator()(const std::optional<fs::path>& path) const {
-		return path ? hash_value(path.value()) : 0;
+	std::size_t operator()(const fs::path& path) const {
+		return std::hash<fs::path::string_type>()(path.native());
 	}
 };
 struct object_hash {
@@ -61,4 +60,4 @@ std::string hash_blob_path(fs::path path, bool write);
 fs::path sha1_to_path(std::string sha1);
 
 void
-paths(fs::path path, std::unordered_set<std::optional<fs::path>, opt_path_hash>& Pathes);
+paths(fs::path path, std::unordered_set<fs::path, opt_path_hash>& Pathes);

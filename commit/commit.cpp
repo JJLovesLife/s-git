@@ -108,8 +108,8 @@ build_tree(fs::path path, std::vector<object>& index) {
 			//std::cout << filename << "\n";
 			//std::cout << "\n";
 		}
-		else {
-			if (it.path().has_extension() && it.path().extension() == ".txt") { //fs::is_regular_file(entry.status())
+		else if (fs::is_regular_file(entry)) {
+				/* if (it.path().has_extension() && it.path().extension() == ".txt") { //fs::is_regular_file(entry.status())
 				//std::cout << filename << "\n";
 				v.push_back(fileIndex(it.path(), index));
 				//DisplayFileInfo(entry, lead, filename);
@@ -118,7 +118,7 @@ build_tree(fs::path path, std::vector<object>& index) {
 			else {
 				//std::cout << filename << "\n";
 				//std::cerr << "Error: " << " is not a directory and is not a file" << std::endl;
-			}
+			}*/
 		}
 	}
 	
@@ -137,7 +137,7 @@ int commitMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 
 	argParser.add<std::string>("message", 'm', "commit message", true, "");
-	argParser.add<std::string>("author", 'a', "commit author", false, "jun");
+	// argParser.add<std::string>("author", 'a', "commit author", true, "");
 	argParser.parse_check(argc, argv);
 
 	std::string  message = argParser.get<std::string>("message");
@@ -150,19 +150,20 @@ int commitMain(int argc, const char* argv[]) {
 	std::string commitSha1 = readMain();
 
 
-	std::unordered_set<std::optional<fs::path>, opt_path_hash> Pathes;
+	std::unordered_set<fs::path, opt_path_hash> Pathes;
 	paths(workDir, Pathes);
 	if (commitSha1.length()==0) {
 		std::vector<object> index;
 		object tree = build_tree(workDir, index);  //修改后的
 		std::cout << "first commit  \n";
-		std::cout << "「main (root-commit) " << tree.sha1.substr(0,7) << "」add "<<Pathes.size()<<"\n";
+		std::cout << "[main (root-commit) " << tree.sha1.substr(0, 7) << "]\n";
+		std::cout << Pathes.size() << " file changed\n";
 		for (auto& path : Pathes) {
-			std::cout << " " << path.value() << "\n";
+			std::cout << " " << fs::relative(path).generic_string() << '\n';
 		}
 		//std::cout << tree.sha1 << "\n";
 		std::string newcommitSha1 = writeCommit(tree.sha1, "NULL", message, author);
-		std::cout << newcommitSha1 << "\n";
+		std::cout << newcommitSha1 << '\n';
 		writeMain(newcommitSha1);
 		//for ()
 	}
@@ -174,13 +175,14 @@ int commitMain(int argc, const char* argv[]) {
 				std::vector<object> index;
 				object tree = build_tree(workDir, index);  //修改后的
 				std::cout << "first commit  \n";
-				std::cout << "「main (root-commit) " << tree.sha1.substr(0, 7) << "」add " << Pathes.size() << "\n";
+				std::cout << "[main (root-commit) " << tree.sha1.substr(0, 7) << "]\n";
+				std::cout << Pathes.size() << " file changed\n";
 				for (auto& path : Pathes) {
-					std::cout << " " << path.value() << "\n";
+					std::cout << " " << fs::relative(path).generic_string() << '\n';
 				}
 				//std::cout << tree.sha1 << "\n";
 				std::string newcommitSha1 = writeCommit(tree.sha1, "NULL", message, author);
-				std::cout << newcommitSha1 << "\n";
+				std::cout << newcommitSha1 << '\n';
 				writeMain(newcommitSha1);
 				return 0;
 			}
@@ -202,8 +204,8 @@ int commitMain(int argc, const char* argv[]) {
 				int changedFiles = 0;
 				int newFiles = 0;
 				int deleteFiles = 0;
-				std::unordered_set<std::optional<fs::path>, opt_path_hash> entries_path_set;
-				std::unordered_map<std::optional<fs::path>, std::string, opt_path_hash>  entries_map;
+				std::unordered_set<fs::path, opt_path_hash> entries_path_set;
+				std::unordered_map<fs::path, std::string, opt_path_hash>  entries_map;
 
 				for (auto& e : entries) {
 					entries_path_set.insert(e.path);
@@ -212,33 +214,33 @@ int commitMain(int argc, const char* argv[]) {
 
 				std::cout << "changed files: \n";
 				for (auto& p : Pathes) {
-					if (entries_path_set.count(p.value()) != 0) {
-						std::string sha1_1 = hash_blob_path(p.value(), false);
+					if (entries_path_set.count(p) != 0) {
+						std::string sha1_1 = hash_blob_path(p, false);
 						//std::cout << "\t"<< sha1_1 << "\n";
 						//std::cout<<
-						std::string sha1_2 = entries_map.find(p.value())->second;
+						std::string sha1_2 = entries_map.find(p)->second;
 						//std::cout << "\t"<< sha1_2 << "\n";
 						if (sha1_1 != sha1_2) {
 							//changedFiles.push_back(p.value());
 							changedFiles++;
-							std::cout << "\t" << p.value() << "\n";
+							std::cout << '\t' << p << '\n';
 						}
 					}
 				}
 				std::cout << "new files: \n";
 				for (auto& p : Pathes) {
-					if (entries_path_set.count(p.value()) == 0) {
+					if (entries_path_set.count(p) == 0) {
 						//newFiles.push_back(p.value());
 						++newFiles;
-						std::cout << "\t" << p.value() << "\n";
+						std::cout << '\t' << p << '\n';
 					}
 				}
 				std::cout << "delete files: \n";
 				for (auto& p : entries_path_set) {
-					if (Pathes.count(p.value()) == 0) {
+					if (Pathes.count(p) == 0) {
 						//deleteFiles.push_back(p.value());
 						++deleteFiles;
-						std::cout << "\t" << p.value() << "\n";
+						std::cout << '\t' << p << '\n';
 					}
 				}
 

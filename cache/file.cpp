@@ -75,22 +75,28 @@ std::string substr(char* data, int begin, int size) {
 
 }*/
 std::string readMain() {
-	fs::path gitDir(std::string{ "." }+GIT_NAME);
-	fs::path headDir = gitDir / "HEAD";
+	fs::path headDir = GIT_DIR.value() / "HEAD";
 	//std::cout << headDir << "\n";
-	char* buffer;
-	int size = readFile(headDir, buffer);
-	std::string mainpath(buffer, size);
-	if (buffer)delete buffer;
-	fs::path mainDir = gitDir / fs::path(mainpath);
-	//std::cout << mainDir << "\n";
-	char* buffer1;
-	size = readFile(mainDir, buffer1);
-	std::string sha1(buffer1, size);
-	if (size) delete buffer1;
-	//std::cout << sha1 << "";
-	return sha1;
+	auto buffer = readFile(headDir);
+
+	constexpr const char *refPrompt = "ref: ";
+	constexpr size_t refPromptSize = std::char_traits<char>::length(refPrompt);
+	bool ref = buffer.size() >= refPromptSize;
+	for (size_t i = 0; i < refPromptSize && ref; i++) {
+		if (buffer[i] != refPrompt[i]) {
+			ref = false;
+		}
+	}
+
+	if (ref) {
+		buffer.push_back('\0');
+		fs::path refPath(&buffer[refPromptSize], fs::path::format::generic_format);
+		fs::path mainDir = GIT_DIR.value() / refPath;
+		buffer = readFile(mainDir);
+	}
+	return { buffer.begin(), buffer.end() };
 }
+
 int writeMain(std::string sha1) {
 	fs::path gitDir(std::string{ "." }+GIT_NAME);
 	fs::path headDir = gitDir / "HEAD";
@@ -99,7 +105,7 @@ int writeMain(std::string sha1) {
 	std::string mainpath(buffer, size);
 	if (buffer)delete buffer;
 	fs::path mainDir = gitDir / fs::path(mainpath);
-	std::cout << mainDir << "\n";
+	std::cout << mainDir << '\n';
 	write_file(mainDir, (char*)sha1.c_str(), sha1.length());
 	return 1;
 }

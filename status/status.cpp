@@ -58,7 +58,7 @@ status(int argc, const char* argv[]) {
 	//fs::path workDir = fs::path(".");
 
 	//std::set<index> indexWork;
-	std::unordered_set<std::optional<fs::path>, opt_path_hash> Pathes;
+	std::unordered_set<fs::path, opt_path_hash> Pathes;
 	//std::vector<fs::path> Pathes;
 
 	//paths(workDir, Pathes);
@@ -71,7 +71,7 @@ status(int argc, const char* argv[]) {
 		std::cout << "Untracked files:\n";
 		for (auto& path : Pathes) {
 
-			std::cout << "\t" <<path.value() << "\n";
+			std::cout << '\t' << fs::relative(path).generic_string() << '\n';
 		}
 	}
 	else {
@@ -81,15 +81,15 @@ status(int argc, const char* argv[]) {
 		//std::vector<fs::path> changedFiles;
 		//std::vector<fs::path> newFiles;
 		//std::vector<fs::path> deleteFiles;
-		std::unordered_set<std::optional<fs::path>, opt_path_hash> entries_path_set;
-		std::unordered_map<std::optional<fs::path>, std::string, opt_path_hash>  entries_map;
+		std::unordered_set<fs::path, opt_path_hash> entries_path_set;
+		std::unordered_map<fs::path, std::string, opt_path_hash>  entries_map;
 		commit parentCommit;
 		if (!readCommit(commitSha1, parentCommit)) {
 			std::cout << "No commits yet  \n";
 			std::cout << "Untracked files:\n";
 			for (auto& path : Pathes) {
 
-				std::cout << "\t" << path.value() << "\n";
+				std::cout << '\t' << fs::relative(path).generic_string() << '\n';
 			}
 			return 0;
 		}
@@ -104,30 +104,30 @@ status(int argc, const char* argv[]) {
 		}*/
 		std::cout << "changed files: \n";
 		for (auto &p:Pathes) {
-			if (entries_path_set.count(p.value()) != 0) {
-				std::string sha1_1 = hash_blob_path(p.value(), false);
+			if (entries_path_set.count(p) != 0) {
+				std::string sha1_1 = hash_blob_path(p, false);
 				//std::cout << "\t"<< sha1_1 << "\n";
 				//std::cout<<
-				std::string sha1_2= entries_map.find(p.value())->second;
+				std::string sha1_2= entries_map.find(p)->second;
 				//std::cout << "\t"<< sha1_2 << "\n";
 				if (sha1_1 != sha1_2) {
 					//changedFiles.push_back(p.value());
-					std::cout << "\t" << p.value() << "\n";
+					std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 				}
 			}
 		}
 		std::cout << "new files: \n";
 		for (auto& p : Pathes){
-			if (entries_path_set.count(p.value())==0) {
+			if (entries_path_set.count(p)==0) {
 				//newFiles.push_back(p.value());
-				std::cout << "\t" << p.value() << "\n";
+				std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 			}
 		}
 		std::cout << "delete files: \n";
 		for (auto& p : entries_path_set) {
-			if (Pathes.count(p.value()) == 0) {
+			if (Pathes.count(p) == 0) {
 				//deleteFiles.push_back(p.value());
-				std::cout << "\t" << p.value() << "\n";
+				std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 			}
 		}
 	}
