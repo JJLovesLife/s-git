@@ -1,10 +1,11 @@
 // [COMMAND]
-// TODO: init 
-// TODO: status 
-// TODO: commit
+// TODO: .s-gitignore
+// TODO: tag
 // TODO: log
+// TODO: checkout
+// TODO: branch
+
 
 // [CODE]
 // TODO: adding namespace
-// TODO: in status and commit, change unordered_set to vector? cause we want status to show sorted file
 // TODO: char to uint8_t

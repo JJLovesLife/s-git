@@ -18,11 +18,7 @@ std::string writeCommit(std::string treeSha1, std::string parent, std::string me
 	buffer << treeSha1 << ' ' << parent << ' ' << message;
 
 	auto str = buffer.str();
-	std::string sha1 = hash_object("commit", str, false);
-
-	if (!sha1Exist(sha1)) {
-		hash_object("commit", str, true);
-	}
+	std::string sha1 = hash_object("commit", str, true);
 
 	return sha1;
 }
@@ -52,11 +48,7 @@ std::string write_tree(std::vector<object> index) {
 	}
 
 	auto str = buffer.str();
-	std::string sha1 = hash_object("tree", str, false);
-
-	if (!sha1Exist(sha1)){
-		hash_object("tree", str, true);
-	}
+	std::string sha1 = hash_object("tree", str, true);
 
 	return sha1;
 }

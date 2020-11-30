@@ -125,13 +125,7 @@ hash_object(const char* object_type, const std::vector<char> &data, bool write) 
 	std::string sha1 = checksum.final();
 
 	if (write) {
-		std::string sha12 = sha1.substr(0, 2);
-		std::string sha128 = sha1.substr(2, 38);
-
-		fs::path objectPath = GIT_DIR.value();
-		objectPath /= "objects";
-		objectPath /= sha12;
-		objectPath /= sha128;
+		fs::path objectPath = sha1_to_path(sha1);
 
 		write_object(objectPath, hdrStream.str(), data);
 	}
@@ -140,7 +134,6 @@ hash_object(const char* object_type, const std::vector<char> &data, bool write) 
 
 std::string
 hash_object(const char* object_type, const std::string &message, bool write) {
-	// TODO: optimize write
 	/* Generate the header */
 	std::stringstream hdrStream;
 	hdrStream << object_type << ' ' << message.size() << '\0';
@@ -152,15 +145,11 @@ hash_object(const char* object_type, const std::string &message, bool write) {
 	std::string sha1 = checksum.final();
 
 	if (write) {
-		std::string sha12 = sha1.substr(0, 2);
-		std::string sha128 = sha1.substr(2, 38);
+		fs::path objectPath = sha1_to_path(sha1);
 
-		fs::path objectPath = GIT_DIR.value();
-		objectPath /= "objects";
-		objectPath /= sha12;
-		objectPath /= sha128;
-
-		write_object(objectPath, hdrStream.str(), message);
+		if (!fs::exists(objectPath)) {
+			write_object(objectPath, hdrStream.str(), message);
+		}
 	}
 	return sha1;
 }
