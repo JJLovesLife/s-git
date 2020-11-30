@@ -15,6 +15,12 @@ readFile(fs:: path dir,char *  &buffer);
 void
 write_file(const fs::path &path, const std::vector<char> &data);
 
+void
+write_object(const fs::path &path, const std::string &header, const std::vector<char> &data);
+
+void
+write_object(const fs::path &path, const std::string &header, const std::string &message);
+
 std::vector<char>
 readFile(const fs::path &path);
 
@@ -22,4 +28,4 @@ int find(char* data, char t, int size);
 
 std::string readMain();
 
-int writeMain(std::string sha1);
+bool writeMain(std::string sha1);

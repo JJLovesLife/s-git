@@ -185,6 +185,78 @@ void readTree(std::string sha1, std::vector<object>& path) {
 
 }
 
+template<typename CharT, typename TraitsT = std::char_traits<CharT> >
+class vectorwrapbuf : public std::basic_streambuf<CharT, TraitsT> {
+public:
+	vectorwrapbuf(const std::vector<CharT> &vec) {
+		this->setg(const_cast<CharT *>(vec.data()),
+			const_cast<CharT *>(vec.data()),
+			const_cast<CharT *>(vec.data() + vec.size()));
+	}
+};
+
+std::string
+hash_object(const char* object_type, const std::vector<char> &data, bool write) {
+	/* Generate the header */
+	std::stringstream hdrStream;
+	hdrStream << object_type << ' ' << data.size() << '\0';
+
+	SHA1 checksum;
+	checksum.update(hdrStream);
+	vectorwrapbuf<char> buf(data);
+	std::istream is(&buf);
+	checksum.update(is);
+
+	std::string sha1 = checksum.final();
+
+	if (write) {
+		//std::string SHA1 =
+
+		std::string sha12 = sha1.substr(0, 2);
+		std::string sha128 = sha1.substr(2, 38);
+		//memcpy(sha12,sha1,2);
+		//memcpy(sha128,sha1+2,18);
+
+		fs::path objectPath = GIT_DIR.value();
+		objectPath /= "objects";
+		objectPath /= sha12;
+		objectPath /= sha128;
+
+		write_object(objectPath, hdrStream.str(), data);
+	}
+	return sha1;
+}
+
+std::string
+hash_object(const char* object_type, const std::string &message, bool write) {
+	/* Generate the header */
+	std::stringstream hdrStream;
+	hdrStream << object_type << ' ' << message.size() << '\0';
+
+	SHA1 checksum;
+	checksum.update(hdrStream);
+	checksum.update(message);
+
+	std::string sha1 = checksum.final();
+
+	if (write) {
+		//std::string SHA1 =
+
+		std::string sha12 = sha1.substr(0, 2);
+		std::string sha128 = sha1.substr(2, 38);
+		//memcpy(sha12,sha1,2);
+		//memcpy(sha128,sha1+2,18);
+
+		fs::path objectPath = GIT_DIR.value();
+		objectPath /= "objects";
+		objectPath /= sha12;
+		objectPath /= sha128;
+
+		write_object(objectPath, hdrStream.str(), message);
+	}
+	return sha1;
+}
+
 std::string
 hash_object(const char* object_type, char * buf , long unsigned len ,bool write){
 	/* Generate the header */
@@ -193,24 +265,13 @@ hash_object(const char* object_type, char * buf , long unsigned len ,bool write)
 	std::string hdr = hdrStream.str();
 
 	SHA1 checksum;
-	checksum.update(hdr);
+	checksum.update(hdrStream);
 	std::stringstream bufStream;
 	bufStream.write(buf, len);
 	checksum.update(bufStream);
 
-	auto resultStr = checksum.final();
-	unsigned char result[20];
-	for (size_t i = 0; i < 20; i++) {
-		result[i] = resultStr[i];
-	}
+	std::string sha1 = checksum.final();
 
-	std::stringstream shastr;
-	shastr << std::hex << std::setfill('0');
-	for (const auto& byte:result)
-	{
-		shastr << std::setw(2) << (int)byte;
-	}
-	std::string sha1 = shastr.str();
 	if (write){
 		//std::string SHA1 =
 		
@@ -219,7 +280,7 @@ hash_object(const char* object_type, char * buf , long unsigned len ,bool write)
 		//memcpy(sha12,sha1,2);
 		//memcpy(sha128,sha1+2,18);
 		
-		fs::path objectDir(std::string{ '.' } + GIT_NAME);
+		fs::path objectDir = GIT_DIR.value();
 		objectDir/="objects";
 		objectDir/=sha12;
 		objectDir/=sha128;
@@ -229,9 +290,9 @@ hash_object(const char* object_type, char * buf , long unsigned len ,bool write)
 		memcpy(data , hdr.data(), hdr.size());
 		memcpy(data + hdr.size(), buf, len);
 
-		//std::cout << objectDir << "\n";
+		//std::cout << objectPath << "\n";
 
-		//write_file(objectDir, (char *)data ,);
+		//write_file(objectPath, (char *)data ,);
 
 		write_file(objectDir, data, hdr.size() + len );
 		//delete data;
@@ -241,14 +302,13 @@ hash_object(const char* object_type, char * buf , long unsigned len ,bool write)
 }
 
 std::string hash_blob_path(fs::path path, bool write) {
-	char* buffer;
-	long unsigned size = readFile(path, buffer);
-	//std::cout << size << "\n";
-	return hash_object("blob", buffer, size, write);
+	auto buffer = readFile(path);
+	//return hash_object("blob", buffer.data(), buffer.size(), write);
+	return hash_object("blob", buffer, write);
 }
 
 fs::path sha1_to_path(std::string sha1) {
-	fs::path Dir(std::string{ '.' } +GIT_NAME);
+	fs::path Dir = GIT_DIR.value();
 	Dir /= "objects";
 	std::string sha12 = sha1.substr(0, 2);
 	std::string sha118 = sha1.substr(2, 38);

@@ -50,7 +50,4 @@
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="TODO.txt" />
-  </ItemGroup>
 </Project>

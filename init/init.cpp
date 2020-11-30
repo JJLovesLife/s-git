@@ -27,7 +27,7 @@ int initMain(int argc, const char* argv[]) {
 		std::cerr << "Error: failed to create " << gitDir << std::endl;
 		return 1;
 	}else{
-		for (auto path:{"objects","refs","refs/head"}){
+		for (auto path:{"objects","refs","refs/heads"}){
 			fs::path dir = (gitDir/path);
 			//std::cout << gitDir << std::endl;
 			fs::create_directories(dir);

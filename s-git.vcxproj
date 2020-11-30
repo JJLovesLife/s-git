@@ -140,9 +140,6 @@
     <ClInclude Include="object\object.h" />
     <ClInclude Include="s-git.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="TODO.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -54,6 +54,12 @@ void readTree(std::string sha1, std::vector<object>& path);
 std::string
 hash_object(const char* object_type, char* buf, long unsigned len, bool write=true);
 
+std::string
+hash_object(const char* object_type, const std::vector<char> &data, bool write = true);
+
+std::string
+hash_object(const char* object_type, const std::string &message, bool write = true);
+
 
 std::string hash_blob_path(fs::path path, bool write);
 

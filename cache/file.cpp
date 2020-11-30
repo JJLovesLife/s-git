@@ -21,6 +21,30 @@ write_file(const fs::path &path, const std::vector<char> &data) {
 	outfile.close();
 }
 
+void
+write_object(const fs::path &path, const std::string &header, const std::vector<char> &data) {
+	if (!fs::exists(path.parent_path())) {
+		fs::create_directories(path.parent_path());
+	}
+	std::ofstream outfile;
+	outfile.open(path, std::ios::out | std::ios::trunc | std::ios::binary);
+	outfile.write(header.data(), header.size());
+	outfile.write(data.data(), data.size());
+	outfile.close();
+}
+
+void
+write_object(const fs::path &path, const std::string &header, const std::string &message) {
+	if (!fs::exists(path.parent_path())) {
+		fs::create_directories(path.parent_path());
+	}
+	std::ofstream outfile;
+	outfile.open(path, std::ios::out | std::ios::trunc | std::ios::binary);
+	outfile.write(header.data(), header.size());
+	outfile.write(message.data(), message.size());
+	outfile.close();
+}
+
 long unsigned
 readFile(fs::path dir,char * &buffer ) {
 
@@ -74,6 +98,7 @@ std::string substr(char* data, int begin, int size) {
 	std::string temp(data + begin, size);
 
 }*/
+
 std::string readMain() {
 	fs::path headDir = GIT_DIR.value() / "HEAD";
 	//std::cout << headDir << "\n";
@@ -97,16 +122,30 @@ std::string readMain() {
 	return { buffer.begin(), buffer.end() };
 }
 
-int writeMain(std::string sha1) {
-	fs::path gitDir(std::string{ "." }+GIT_NAME);
-	fs::path headDir = gitDir / "HEAD";
-	char* buffer;
-	int size = readFile(headDir, buffer);
-	std::string mainpath(buffer, size);
-	if (buffer)delete buffer;
-	fs::path mainDir = gitDir / fs::path(mainpath);
-	std::cout << mainDir << '\n';
-	write_file(mainDir, (char*)sha1.c_str(), sha1.length());
-	return 1;
+bool writeMain(std::string sha1) {
+	fs::path headDir = GIT_DIR.value() / "HEAD";
+	//std::cout << headDir << "\n";
+	auto buffer = readFile(headDir);
+
+	constexpr const char *refPrompt = "ref: ";
+	constexpr size_t refPromptSize = std::char_traits<char>::length(refPrompt);
+	bool ref = buffer.size() >= refPromptSize;
+	for (size_t i = 0; i < refPromptSize && ref; i++) {
+		if (buffer[i] != refPrompt[i]) {
+			ref = false;
+		}
+	}
+
+	if (!ref) {
+		write_file(headDir, sha1.data(), sha1.size());
+		return true;
+	}
+
+	buffer.push_back('\0');
+	fs::path refPath(&buffer[refPromptSize], fs::path::format::generic_format);
+	fs::path branchPath = GIT_DIR.value() / refPath;
+
+	write_file(branchPath, sha1.data(), sha1.size());
+	return true;
 }
 
