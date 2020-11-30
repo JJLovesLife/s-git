@@ -81,7 +81,7 @@ int main(int argc, const char *argv[]) {
 }
 
 int version(int, const char*[]) {
-	std::cout << GIT_NAME << " versoin 0.2.0" << std::endl;
+	std::cout << GIT_NAME << " versoin 0.3.0" << std::endl;
 	return 0;
 }
 

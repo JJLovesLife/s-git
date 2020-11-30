@@ -175,6 +175,13 @@ void
 paths(const fs::path &path, std::set<fs::path>& Pathes) {
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
+		std::cerr << "Error: " << fs::relative(path) << " is supposed to be a directory" << std::endl;
+		return;
+	}
+
+	fs::path ignore = path / ".s-gitignore";
+	if (fs::exists(ignore) && fs::file_size(ignore) == 0) {
+		// ignore this directory if there exists file ".s-gitignore" with empty content
 		return;
 	}
 
