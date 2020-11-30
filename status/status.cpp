@@ -36,7 +36,7 @@ status(int argc, const char* argv[]) {
 		return 1;
 	}
 
-	std::unordered_set<fs::path, opt_path_hash> Pathes;
+	std::set<fs::path> Pathes;
 
 	paths(ROOT_DIR.value(), Pathes);
 	std::string commitSha1 = readMain();

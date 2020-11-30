@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <string>
-#include <unordered_set>
+#include <set>
 
 struct object {
 	std::string object_type;
@@ -44,4 +44,4 @@ struct opt_path_hash {
 };
 
 void
-paths(const std::filesystem::path &path, std::unordered_set<std::filesystem::path, opt_path_hash>& Pathes);
+paths(const std::filesystem::path &path, std::set<std::filesystem::path>& Pathes);

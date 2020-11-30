@@ -183,7 +183,7 @@ fs::path sha1_to_path(const std::string &sha1) {
 }
 
 void
-paths(const fs::path &path, std::unordered_set<fs::path, opt_path_hash>& Pathes) {
+paths(const fs::path &path, std::set<fs::path>& Pathes) {
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
 		return;

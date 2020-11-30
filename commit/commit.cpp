@@ -111,7 +111,7 @@ int commitMain(int argc, const char* argv[]) {
 	std::string  message = argParser.get<std::string>("message");
 
 
-	std::unordered_set<fs::path, opt_path_hash> Pathes;
+	std::set<fs::path> Pathes;
 	paths(ROOT_DIR.value(), Pathes);
 
 	std::string commitSha1 = readMain();
@@ -164,7 +164,7 @@ int commitMain(int argc, const char* argv[]) {
 			int changedFiles = 0;
 			int newFiles = 0;
 			int deleteFiles = 0;
-			std::unordered_set<fs::path, opt_path_hash> entries_path_set;
+			std::set<fs::path> entries_path_set;
 			std::unordered_map<fs::path, std::string, opt_path_hash>  entries_map;
 
 			for (auto& e : entries) {
