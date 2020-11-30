@@ -56,21 +56,36 @@ readSha1(std::string sha1,char *  & buf) {
 //spilt = 2;
 //spilt1=	5
 
-int readCommit(std::string sha1, commit& thisCommit) {
+bool readCommit(std::string sha1, commit& thisCommit) {
 	if (!sha1Exist(sha1)) {
 		//std::cerr << "Error: " << GIT_NAME << " commit don't exists" << std::endl;
-		return 0;
+		return false;
 	}
 	fs::path path = sha1_to_path(sha1);
 	std::ifstream t(path, std::ios::in | std::ios::binary);
 	//commit thisCommit;
-	t >> thisCommit.sha1 >> thisCommit.size >>
-		thisCommit.tree >> thisCommit.author >> thisCommit.parent >> thisCommit.message;
+	std::string type;
+	t >> type >> thisCommit.size;
+	char nullChar;
+	t >> nullChar;
+	if (type != "commit" || nullChar != '\0') {
+		return false;
+	}
+	std::getline(t, thisCommit.tree, ' ');
+	std::getline(t, thisCommit.parent, ' ');
+	std::getline(t, thisCommit.message);
+	if (!t.eof()) {
+		return false;
+	}
 	t.close();
-	return 1;
+	thisCommit.sha1 = sha1;
+	return true;
 	//return thisCommit;
 }
-void readTree(std::string sha1, std::vector<object>& path) {
+void readTree(fs::path dir, std::string sha1, std::vector<object>& path) {
+	if (sha1 == "NULL") {
+		return;
+	}
 	//std::cout << sha1 << "\n";
 	if (sha1Exist(sha1)) {
 		//char* data;
@@ -81,6 +96,12 @@ void readTree(std::string sha1, std::vector<object>& path) {
 		int size;
 		t >> type >> size;
 		//std::cout << type << " " << size;
+		char nullChar;
+		t >> nullChar;
+		if (nullChar != '\0') {
+			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+			return;
+		}
 		if (type != "tree") {
 			std::cerr << "Error: " << GIT_NAME << sha1 << " this is not a tree, read tree failed" << std::endl;
 			return;
@@ -88,26 +109,22 @@ void readTree(std::string sha1, std::vector<object>& path) {
 		else {
 			while (!t.eof() && t.peek() != EOF) {
 				object tmp;
-				t >> tmp.object_type >> tmp.sha1 >> tmp.path;
+				std::getline(t, tmp.object_type, ' ');
+				std::getline(t, tmp.sha1, ' ');
+				std::string tmpPath;
+				std::getline(t, tmpPath);
+				tmp.path = tmpPath;
 				//std::cout << tmp.object_type << " " << tmp.sha1 << " " << tmp.path << "\n";
+				tmp.path = dir / tmp.path;
 				if (tmp.object_type == "blob") {
 					path.push_back(tmp);
 				}
+				else if (tmp.object_type == "tree") {
+					path.push_back(tmp);
+					readTree(tmp.path, tmp.sha1, path);
+				}
 				else {
-					if (tmp.object_type == "tree") {
-						path.push_back(tmp);
-						readTree(tmp.sha1, path);
-					}
-					else {
-						if (tmp.object_type == "") {
-							break;
-						}
-						else {
-							std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
-						}
-						
-
-					}
+					std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
 				}
 			}
 		}

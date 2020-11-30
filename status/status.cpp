@@ -76,8 +76,6 @@ status(int argc, const char* argv[]) {
 	}
 	else {
 		std::vector<object> entries; // 原有的
-
-
 		//std::vector<fs::path> changedFiles;
 		//std::vector<fs::path> newFiles;
 		//std::vector<fs::path> deleteFiles;
@@ -93,8 +91,12 @@ status(int argc, const char* argv[]) {
 			}
 			return 0;
 		}
+
+		std::cout << "On branch main\n";
+		bool clean = true;
+
 		std::string sha1 = parentCommit.tree;
-		readTree(sha1, entries);
+		readTree(ROOT_DIR.value(), sha1, entries);
 		for (auto& e : entries) {
 			entries_path_set.insert(e.path);
 			entries_map[e.path] = e.sha1;
@@ -113,6 +115,7 @@ status(int argc, const char* argv[]) {
 				if (sha1_1 != sha1_2) {
 					//changedFiles.push_back(p.value());
 					std::cout << '\t' << fs::relative(p).generic_string() << '\n';
+					clean = false;
 				}
 			}
 		}
@@ -121,14 +124,21 @@ status(int argc, const char* argv[]) {
 			if (entries_path_set.count(p)==0) {
 				//newFiles.push_back(p.value());
 				std::cout << '\t' << fs::relative(p).generic_string() << '\n';
+				clean = false;
 			}
 		}
 		std::cout << "delete files: \n";
-		for (auto& p : entries_path_set) {
+		for (auto& e : entries) {
+			if (e.object_type != "blob") continue;
+			auto &p = e.path;
 			if (Pathes.count(p) == 0) {
-				//deleteFiles.push_back(p.value());
 				std::cout << '\t' << fs::relative(p).generic_string() << '\n';
+				clean = false;
 			}
+		}
+
+		if (clean) {
+			std::cout << "nothing to commit, working tree clean\n";
 		}
 	}
 

@@ -11,6 +11,7 @@ extern Command CommitCommand{
 
 #include <filesystem>
 #include <iostream>
+#include <optional>
 
 
 
@@ -18,11 +19,8 @@ namespace fs = std::filesystem;
 
 
 std::string writeCommit(std::string treeSha1,std::string parent,std::string message) {
-	int size = 0;
-	size = treeSha1.length() + parent.length() + message.length() + 4;
-
 	std::stringstream buffer;
-	buffer << treeSha1 << ' ' << parent << ' ' << message << ' ';
+	buffer << treeSha1 << ' ' << parent << ' ' << message;
 
 	auto str = buffer.str();
 	std::string sha1 = hash_object("commit", str, false);
@@ -36,7 +34,7 @@ std::string writeCommit(std::string treeSha1,std::string parent,std::string mess
 
 
 object
-fileIndex(fs::path path, std::vector<object>& index) {
+fileIndex(fs::path path) {
 	//std::cout << path << "\n";
 
 	object thisBlob;
@@ -48,7 +46,6 @@ fileIndex(fs::path path, std::vector<object>& index) {
 	if (!sha1Exist(thisBlob.sha1)) {
 		hash_blob_path(path, true);
 	}
-	index.push_back(thisBlob);
 	return thisBlob;
 }
 bool cmp(const object& a, const object& b) {
@@ -58,7 +55,7 @@ bool cmp(const object& a, const object& b) {
 std::string write_tree(std::vector<object> index) {
 	std::stringstream buffer;
 	for (auto &v : index) {
-		buffer << v.object_type << ' ' << v.sha1 << ' ' << v.path.filename().u8string() << ' ';
+		buffer << v.object_type << ' ' << v.sha1 << ' ' << v.path.filename().u8string() << '\n';
 	}
 
 	auto str = buffer.str();
@@ -73,8 +70,8 @@ std::string write_tree(std::vector<object> index) {
 }
 
 
-object
-build_tree(fs::path path, std::vector<object>& index) {
+std::optional<object>
+build_tree(fs::path path) {
 	fs::directory_entry entry(path);		//文件入口
 	if (entry.status().type() != fs::file_type::directory) {
 		std::cerr << "Error: " << GIT_NAME << " is not a directory" << std::endl;
@@ -98,12 +95,15 @@ build_tree(fs::path path, std::vector<object>& index) {
 		//std::cout << it.path() << "\n";
 		if (fs::is_directory(it.status()))
 		{
-			v.push_back(build_tree(it, index));
+			auto obj = build_tree(it);
+			if (obj.has_value()) {
+				v.push_back(obj.value());
+			}
 			//std::cout << filename << "\n";
 			//std::cout << "\n";
 		}
 		else if (fs::is_regular_file(it)) {
-			v.push_back(fileIndex(it.path(), index));
+			v.push_back(fileIndex(it.path()));
 				/* if (it.path().has_extension() && it.path().extension() == ".txt") { //fs::is_regular_file(entry.status())
 				//std::cout << filename << "\n";
 				v.push_back(fileIndex(it.path(), index));
@@ -117,13 +117,16 @@ build_tree(fs::path path, std::vector<object>& index) {
 		}
 	}
 	
+	if (v.size() == 0) {
+		return {};
+	}
+
 	object thisTree;
 	sort(v.begin(), v.end(), cmp);
 	thisTree.object_type = "tree";
 	thisTree.sha1 = write_tree(v);
 	thisTree.path = path;
 	//thisTree.path = sha1_to_path(thisTree.sha1);
-	index.push_back(thisTree);
 	return thisTree;
 }
 
@@ -132,7 +135,6 @@ int commitMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 
 	argParser.add<std::string>("message", 'm', "commit message", true, "");
-	// argParser.add<std::string>("author", 'a', "commit author", true, "");
 	argParser.parse_check(argc, argv);
 
 	std::string  message = argParser.get<std::string>("message");
@@ -144,49 +146,47 @@ int commitMain(int argc, const char* argv[]) {
 	paths(ROOT_DIR.value(), Pathes);
 	if (commitSha1.length()==0) {
 		std::vector<object> index;
-		object tree = build_tree(ROOT_DIR.value(), index);  //修改后的
+		auto treeOpt = build_tree(ROOT_DIR.value());  //修改后的
 
-		std::string newcommitSha1 = writeCommit(tree.sha1, "NULL", message);
+		std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "NULL" ,  "NULL", message);
 		writeMain(newcommitSha1);
 
 		std::cout << "first commit  \n";
 		std::cout << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]\n";
-		std::cout << Pathes.size() << " file changed\n";
+		std::cout << Pathes.size() << " file inserted(+)\n";
 		for (auto& path : Pathes) {
 			std::cout << " " << fs::relative(path, ROOT_DIR.value()).generic_string() << '\n';
 		}
 	}
 	else {
-
 			std::vector<object> entries; // 原有的
 			commit parentCommit;
 			if (!readCommit(commitSha1, parentCommit)) {
-				std::vector<object> index;
-				object tree = build_tree(ROOT_DIR.value(), index);  //修改后的
-				std::cout << "first commit  \n";
-				std::cout << "[main (root-commit) " << tree.sha1.substr(0, 7) << "]\n";
-				std::cout << Pathes.size() << " file changed\n";
-				for (auto& path : Pathes) {
-					std::cout << " " << fs::relative(path).generic_string() << '\n';
-				}
-				//std::cout << tree.sha1 << "\n";
-				std::string newcommitSha1 = writeCommit(tree.sha1, "NULL", message);
-				std::cout << newcommitSha1 << '\n';
+				auto treeOpt = build_tree(ROOT_DIR.value());  //修改后的
+
+				std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "NULL", "NULL", message);
 				writeMain(newcommitSha1);
+
+				std::cout << "first commit  \n";
+				std::cout << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]\n";
+				std::cout << Pathes.size() << " file inserted(+)\n";
+				for (auto& path : Pathes) {
+					std::cout << " " << fs::relative(path, ROOT_DIR.value()).generic_string() << '\n';
+				}
 				return 0;
 			}
+
+			std::cout << "On branch main\n";
 			std::string sha1 = parentCommit.tree;
-			readTree(sha1, entries); //读取
+			readTree(ROOT_DIR.value(), sha1, entries); //读取
 
-			std::vector<object> index; 
-			object tree = build_tree(ROOT_DIR.value(), index);  //修改后的
+			auto treeOpt = build_tree(ROOT_DIR.value());  //修改后的
+			std::string treeSha = treeOpt.has_value() ? treeOpt.value().sha1 : "NULL";
 
-			if (tree.sha1 == sha1) {
-				std::cout << "On branch main\n";
+			if (treeSha == sha1) {
 				std::cout << "nothing added to commit \n";
 			}
 			else {
-				std::cout << "「main " << tree.sha1.substr(0, 7) << "」\n";
 				//std::vector<fs::path> changedFiles;
 				//std::vector<fs::path> newFiles;
 				//std::vector<fs::path> deleteFiles;
@@ -212,7 +212,7 @@ int commitMain(int argc, const char* argv[]) {
 						if (sha1_1 != sha1_2) {
 							//changedFiles.push_back(p.value());
 							changedFiles++;
-							std::cout << '\t' << p << '\n';
+							std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 						}
 					}
 				}
@@ -221,24 +221,27 @@ int commitMain(int argc, const char* argv[]) {
 					if (entries_path_set.count(p) == 0) {
 						//newFiles.push_back(p.value());
 						++newFiles;
-						std::cout << '\t' << p << '\n';
+						std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 					}
 				}
 				std::cout << "delete files: \n";
-				for (auto& p : entries_path_set) {
+				for (auto& e : entries) {
+					if (e.object_type != "blob") continue;
+					auto &p = e.path;
 					if (Pathes.count(p) == 0) {
 						//deleteFiles.push_back(p.value());
 						++deleteFiles;
-						std::cout << '\t' << p << '\n';
+						std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 					}
 				}
 
-				std::cout << " " << changedFiles << " files changed," 
-					<< " " << newFiles << " insertions(+), " << " " << deleteFiles << " deletions(-) \n";
-				
-				std::string newcommitSha1= writeCommit(tree.sha1, parentCommit.sha1, message);
+				std::string newcommitSha1 = writeCommit(treeSha, parentCommit.sha1, message);
 				writeMain(newcommitSha1);
-				//writeCommit(tree.sha1);
+
+				std::cout << "[main " << newcommitSha1.substr(0, 7) << "]\n";
+
+				std::cout << " " << changedFiles << " files changed,"
+					<< " " << newFiles << " insertions(+), " << " " << deleteFiles << " deletions(-) \n";
 			}
 
 		}

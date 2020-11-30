@@ -44,12 +44,12 @@ struct commit {
 	std::string parent; //sha1
 	std::string message;
 };
-int readCommit(std::string sha1, commit& thisCommit);
+bool readCommit(std::string sha1, commit& thisCommit);
 bool sha1Exist(std::string sha1);
 
 int readSha1(std::string sha1, char* &buf); // 返回长度 无则-1
 
-void readTree(std::string sha1, std::vector<object>& path);
+void readTree(fs::path dir, std::string sha1, std::vector<object>& path);
 
 std::string
 hash_object(const char* object_type, char* buf, long unsigned len, bool write=true);

@@ -84,13 +84,13 @@ int main(int argc, const char *argv[]) {
 }
 
 int version(int, const char*[]) {
-	std::cout << GIT_NAME << " versoin 0.1.0" << std::endl;
+	std::cout << GIT_NAME << " versoin 0.2.0" << std::endl;
 	return 0;
 }
 
 int test(int, const char*[]) {
 	std::vector<object> path;
-	readTree("9ea16e1d6cbc67d41da68b7686afd8be150ae7be", path);
+	readTree(ROOT_DIR.value(), "9ea16e1d6cbc67d41da68b7686afd8be150ae7be", path);
 
 	/*char* buffer;
 	int size = readFile(fs::path(".\\ss\\a.txt"), buffer);
