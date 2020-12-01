@@ -116,6 +116,44 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 	}
 }
 
+std::optional<std::string> resolve(std::string &branch) {
+	// return commit sha1
+	auto idx = branch.rfind('~');
+	if (idx == std::string::npos) {
+		return {};
+	}
+
+	int count;
+	try {
+		count = std::stoi(branch.substr(idx + 1));
+	}
+	catch (std::invalid_argument) {
+		return {};
+	}
+	catch (std::out_of_range) {
+		return {};
+	}
+
+	if (count < 0) {
+		return {};
+	}
+
+	auto name = branch.substr(0, idx);
+	if (count == 0) {
+		branch = name;
+		return {};
+	}
+
+	std::string commitSha1 = readBranch(name);
+	commit currCommit;
+	while (count-- != 0) {
+		if (!readCommit(commitSha1, currCommit)) {
+			return {};
+		}
+		commitSha1 = currCommit.parent;
+	}
+	return commitSha1;
+}
 
 int checkoutMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
@@ -146,9 +184,10 @@ int checkoutMain(int argc, const char* argv[]) {
 
 	if (argParser.get<std::string>("branches").length()) {
 		std::string branch = argParser.get<std::string>("branches");
-		std::string sha1 = readBranch(branch);
+		auto resolveBranch = resolve(branch);
+		std::string sha1 = resolveBranch.has_value() ? resolveBranch.value() : readBranch(branch);
 		if (sha1.length() == 0) {
-			std::cerr << "Error:" << " doesn't have this  branch :" << branch << "\n";
+			std::cerr << "Error:" << " doesn't have this branch :" << branch << "\n";
 			return 1;
 		}
 
@@ -158,11 +197,18 @@ int checkoutMain(int argc, const char* argv[]) {
 		readCommit(sha1, branchCommit);
 		copyBranches(ROOT_DIR.value(), branchCommit.tree);
 
-		// write head branchCommit.sha1
-		fs::path branchPath = fs::path("refs") / "heads" / branch;
-		fs::path headDir = GIT_DIR.value() / "HEAD";
-		std::string branchWrite = std::string{ "ref: " } +branchPath.generic_u8string();
-		write_file(headDir, branchWrite.data(),branchWrite.size());
+		if (resolveBranch.has_value()) {
+			// write HEAD
+			fs::path headDir = GIT_DIR.value() / "HEAD";
+			write_file(headDir, sha1.data(), sha1.size());
+		}
+		else {
+			// write head branchCommit.sha1
+			fs::path branchPath = fs::path("refs") / "heads" / branch;
+			fs::path headDir = GIT_DIR.value() / "HEAD";
+			std::string branchWrite = std::string{ "ref: " } +branchPath.generic_u8string();
+			write_file(headDir, branchWrite.data(), branchWrite.size());
+		}
 
 		std::cout << "Switched to branch '" << branch << '\'' << std::endl;
 		return 0;
