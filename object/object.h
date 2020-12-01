@@ -26,7 +26,6 @@ bool sha1Exist(const std::string &sha1);
 
 bool checkSha1(const std::string &sha1);
 
-std::filesystem::path sha1_to_path(const std::string &sha1);
 
 
 std::string
@@ -48,3 +47,5 @@ struct opt_path_hash {
 
 void
 paths(const std::filesystem::path &path, std::set<std::filesystem::path>& Pathes);
+
+void copy_object_tofile(const std::filesystem::path& path, const std::string& sha1);

@@ -23,6 +23,7 @@ static void initFuncTable() {
 	funcTable.emplace("init", InitCommand);
 	funcTable.emplace("status", StatusCommand);
 	funcTable.emplace("commit", CommitCommand);
+	funcTable.emplace("checkout", CheckoutCommand);
 	funcTable.emplace("tag", TagCommand);
 }
 

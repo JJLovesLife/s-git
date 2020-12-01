@@ -5,6 +5,19 @@
 
 namespace fs = std::filesystem;
 
+
+fs::path sha1_to_path(const std::string& sha1) {
+	fs::path Dir = GIT_DIR.value();
+	Dir /= "objects";
+	std::string sha12 = sha1.substr(0, 2);
+	std::string sha118 = sha1.substr(2, 38);
+	fs::path dir1(sha12);
+	fs::path dir2(sha118);
+	Dir /= dir1;
+	Dir /= dir2;
+	return Dir;
+}
+
 void 
 write_file(const fs::path &path, const char* data , size_t len) {
 	// Write data bytes to file at given path.
@@ -22,6 +35,7 @@ write_file(const fs::path &path, const std::vector<char> &data) {
 	outfile.close();
 }
 
+
 void
 write_object(const fs::path &path, const std::string &header, const std::vector<char> &data) {
 	if (!fs::exists(path.parent_path())) {
@@ -33,6 +47,7 @@ write_object(const fs::path &path, const std::string &header, const std::vector<
 	outfile.write(data.data(), data.size());
 	outfile.close();
 }
+
 
 void
 write_object(const fs::path &path, const std::string &header, const std::string &message) {
@@ -63,6 +78,32 @@ readFile(const fs::path &path) {
 	return buffer;
 }
 
+std::string readTag(std::string tagName) {
+	fs::path tagPath = GIT_DIR.value() / "refs" / "tags";
+	fs::directory_iterator list(tagPath);
+	for (auto& it : list) {
+		if (it.path().filename().u8string() == tagName) {
+			auto sha1 = readFile(it.path());
+			return { sha1.begin(), sha1.end() };
+		}
+	}
+	return {};
+
+}
+
+
+std::string readBranch(std::string branchName) {
+	fs::path branchPath = GIT_DIR.value() / "refs" / "branch";
+	fs::directory_iterator list(branchPath);
+	for (auto& it : list) {
+		if (it.path().filename().u8string() == branchName) {
+			auto sha1 = readFile(it.path());
+			return { sha1.begin(), sha1.end() };
+		}
+	}
+	return {};
+
+}
 std::string readMain() {
 	fs::path headPath = GIT_DIR.value() / "HEAD";
 	auto buffer = readFile(headPath);
@@ -110,3 +151,4 @@ bool writeMain(const std::string &sha1) {
 	write_file(branchPath, sha1.data(), sha1.size());
 	return true;
 }
+ 

@@ -171,17 +171,7 @@ std::string hash_blob_path(const fs::path &path, bool write) {
 	return hash_object("blob", buffer, write);
 }
 
-fs::path sha1_to_path(const std::string &sha1) {
-	fs::path Dir = GIT_DIR.value();
-	Dir /= "objects";
-	std::string sha12 = sha1.substr(0, 2);
-	std::string sha118 = sha1.substr(2, 38);
-	fs::path dir1(sha12);
-	fs::path dir2(sha118);
-	Dir /= dir1;
-	Dir /= dir2;
-	return Dir;
-}
+
 
 void
 paths(const fs::path &path, std::set<fs::path>& Pathes) {
@@ -208,4 +198,51 @@ paths(const fs::path &path, std::set<fs::path>& Pathes) {
 			Pathes.insert(it.path());
 		}
 	}
+}
+std::vector<char>
+readRawFile(const std::string& sha1) {
+
+
+	if (sha1 == "NULL") {
+		return {};
+	}
+	if (sha1Exist(sha1)) {
+		fs::path path = sha1_to_path(sha1);
+		std::ifstream file(path, std::ios::in | std::ios::binary);
+
+		std::string type;
+		std::getline(file, type, ' ');
+
+		if (file.peek() < '0' || file.peek() > '9') {
+			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read failed" << std::endl;
+			return {};
+		}
+		size_t size;
+		file >> size;
+
+		char nullChar;
+		file >> nullChar;
+		if (nullChar != '\0') {
+			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read  failed" << std::endl;
+			return{};
+		}
+
+		std::vector<char> buffer(size);
+		file.read(buffer.data(), buffer.size());
+		file.close();
+		return buffer;
+
+	}
+	else {
+		std::cerr << "Error: " << GIT_NAME << sha1 << " this file doesn't exist , read  failed" << std::endl;
+		return {};
+	}
+
+
+}
+
+void copy_object_tofile(const fs::path& path, const std::string& sha1) {
+	
+	auto buffer = readRawFile(sha1);
+	if (buffer.size()) write_file(path, buffer);
 }
