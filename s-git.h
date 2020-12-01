@@ -21,4 +21,6 @@ extern Command StatusCommand;
 extern Command CommitCommand;
 extern Command TagCommand;
 extern Command CheckoutCommand;
+extern Command LogCommand;
+
 extern Command TestCommand;

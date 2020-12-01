@@ -1,9 +1,7 @@
 // [COMMAND]
-// TODO: .s-gitignore
-// TODO: tag
-// TODO: log
 // TODO: checkout
 // TODO: branch
+// TODO: show
 
 
 // [CODE]

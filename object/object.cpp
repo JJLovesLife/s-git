@@ -24,6 +24,11 @@ bool checkSha1(const std::string &sha1) {
 }
 
 bool readCommit(const std::string &sha1, commit& thisCommit) {
+	if (sha1 == "NULL") {
+		// not error, but also not commit
+		return false;
+	}
+
 	if (!sha1Exist(sha1)) {
 		std::cerr << "Error: " << GIT_NAME << " commit file doesn't exist" << std::endl;
 		return false;

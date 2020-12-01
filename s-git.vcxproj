@@ -129,6 +129,7 @@
     <ClCompile Include="checkout\checkout.cpp" />
     <ClCompile Include="commit\commit.cpp" />
     <ClCompile Include="init\init.cpp" />
+    <ClCompile Include="logCommand\log.cpp" />
     <ClCompile Include="object\object.cpp" />
     <ClCompile Include="s-git.cpp" />
     <ClCompile Include="status\status.cpp" />

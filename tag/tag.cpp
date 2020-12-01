@@ -7,8 +7,7 @@ namespace fs = std::filesystem;
 int tagMain(int argc, const char* argv[]);
 extern Command TagCommand{
 	tagMain,
-	// TODO "Create, list or delete a tag object"
-	"Create a tag object"
+	"Create, list or delete a tag object"
 };
 
 
