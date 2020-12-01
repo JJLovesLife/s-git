@@ -142,4 +142,22 @@ bool writeMain(const std::string &sha1) {
 	write_file(branchPath, sha1.data(), sha1.size());
 	return true;
 }
- 
+
+std::string readBranchName() {
+	fs::path headDir = GIT_DIR.value() / "HEAD";
+	auto buffer = readFile(headDir);
+
+	constexpr const char *refPrompt = "ref: ";
+	constexpr size_t refPromptSize = std::char_traits<char>::length(refPrompt);
+	bool ref = buffer.size() >= refPromptSize;
+	for (size_t i = 0; i < refPromptSize && ref; i++) {
+		if (buffer[i] != refPrompt[i]) {
+			return {};
+		}
+	}
+
+	buffer.push_back('\0');
+	fs::path refPath(&buffer[refPromptSize], fs::path::format::generic_format);
+
+	return refPath.filename().string();
+}

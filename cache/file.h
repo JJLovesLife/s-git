@@ -25,6 +25,8 @@ std::string readMain();
 
 bool writeMain(const std::string &sha1);
 
+std::string readBranchName();
+
 
 std::string readTag(std::string tagName);
 std::string readBranch(std::string branchName);

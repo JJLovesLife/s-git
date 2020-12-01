@@ -48,8 +48,15 @@ int branchMain(int argc, const char* argv[]) {
 	}
 
 	if (argParser.exist("delete")) {
+		std::string currBranch = readBranchName();
+
 		bool error = false;
 		for (auto branchName : argParser.rest()) {
+			if (branchName == currBranch) {
+				std::cout << "On branch " << currBranch << " now, unable to delete." << std::endl;
+				continue;
+			}
+
 			fs::path branchPath = branchDir / branchName;
 			if (fs::is_regular_file(branchPath)) {
 				if (fs::remove(branchPath) != 1) {

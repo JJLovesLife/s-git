@@ -147,7 +147,13 @@ int commitMain(int argc, const char* argv[]) {
 			return 0;
 		}
 
-		std::cout << "On branch main\n";
+		std::string branchName = readBranchName();
+		if (branchName.length() != 0) {
+			std::cout << "On branch " << readBranchName() << std::endl;
+		}
+		else {
+			std::cout << "Head detached at " << commitSha1 << std::endl;
+		}
 
 		std::string sha1 = parentCommit.tree;
 		readTree(ROOT_DIR.value(), sha1, entries); // current commit
