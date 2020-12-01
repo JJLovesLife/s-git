@@ -14,8 +14,11 @@ extern Command TagCommand{
 
 int tagMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
-	argParser.footer("<tagname>");
+	argParser.add("delete", 'd', "delete tags");
+	argParser.add("list", 'l', "list tag names");
+	argParser.footer("<tagname> ...");
 	argParser.parse_check(argc, argv);
+
 	if (!GIT_DIR.has_value()) {
 		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
 		return 1;
@@ -32,29 +35,55 @@ int tagMain(int argc, const char* argv[]) {
 		}
 	}
 
-	if (argParser.rest().size() > 1) {
-		std::cout << "Warning: too many tags. can only add one tag at a time." << std::endl;
-		return 1;
-	}
-	else if (argParser.rest().size() == 0) {
-		argParser.usage();
+	if (argParser.exist("list")) {
+		for (auto &it : fs::directory_iterator(tagDir)) {
+			std::cout << it.path().filename().generic_string() << std::endl;
+		}
 		return 0;
 	}
 
-	std::string tagName = argParser.rest()[0];
 
-	fs::path tagPath = tagDir / tagName;
-	if (fs::exists(tagPath)) {
-		std::cerr << "Error: tag '" << tagName << "' already exists";
-		return 1;
-	}
-	
-	std::string sha1 = readMain();
-	commit dummy;
-	if (!checkSha1(sha1) || !readCommit(sha1, dummy)) {
-		std::cerr << "Error: failed to resolve 'HEAD' as a valid commit";
+	if (argParser.rest().size() == 0) {
+		std::cout << argParser.usage();
+		return 0;
 	}
 
-	write_file(tagPath, sha1.data(), sha1.length());
+	if (argParser.exist("delete")) {
+		bool error = false;
+		for (auto tagName : argParser.rest()) {
+			fs::path tagPath = tagDir / tagName;
+			if (fs::is_regular_file(tagPath)) {
+				if (fs::remove(tagPath) != 1) {
+					error = true;
+				}
+				else {
+					std::cout << "Deleted tag '" << tagName << '\'' << std::endl;
+				}
+			}
+		}
+		return error ? 1 : 0;
+	}
+	else {
+		std::string sha1 = readMain();
+		commit dummy;
+		if (!checkSha1(sha1) || !readCommit(sha1, dummy)) {
+			std::cerr << "Error: failed to resolve 'HEAD' as a valid commit";
+		}
+
+		bool error = false;
+		for (auto tagName : argParser.rest()) {
+			fs::path tagPath = tagDir / tagName;
+			if (fs::exists(tagPath)) {
+				std::cerr << "Error: tag '" << tagName << "' already exists" << std::endl;
+				error = true;
+			}
+			else {
+				write_file(tagPath, sha1.data(), sha1.length());
+				std::cout << "Added tag '" << tagName << '\'' << std::endl;
+			}
+		}
+		return error ? 1 : 0;
+	}
+
 	return 0;
 }
