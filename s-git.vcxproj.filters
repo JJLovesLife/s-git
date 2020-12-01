@@ -41,6 +41,9 @@
     <ClCompile Include="logCommand\log.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="branch\branch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="s-git.h">

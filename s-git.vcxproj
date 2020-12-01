@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="branch\branch.cpp" />
     <ClCompile Include="cache\file.cpp" />
     <ClCompile Include="checkout\checkout.cpp" />
     <ClCompile Include="commit\commit.cpp" />
