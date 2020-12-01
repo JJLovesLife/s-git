@@ -1,5 +1,4 @@
 // [COMMAND]
-// TODO: checkout
 // TODO: branch
 // TODO: show
 
@@ -11,3 +10,4 @@
 // [PROJECT]
 // TODO: std::future
 // TODO: test
+// TODO: resolve HEAD~1

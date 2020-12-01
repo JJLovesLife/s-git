@@ -80,30 +80,21 @@ readFile(const fs::path &path) {
 
 std::string readTag(std::string tagName) {
 	fs::path tagPath = GIT_DIR.value() / "refs" / "tags";
-	fs::directory_iterator list(tagPath);
-	for (auto& it : list) {
-		if (it.path().filename().u8string() == tagName) {
-			auto sha1 = readFile(it.path());
-			return { sha1.begin(), sha1.end() };
-		}
-	}
-	return {};
+	tagPath /= tagName;
 
+	auto sha1 = readFile(tagPath);
+	return { sha1.begin(), sha1.end() };
 }
 
 
 std::string readBranch(std::string branchName) {
-	fs::path branchPath = GIT_DIR.value() / "refs" / "branch";
-	fs::directory_iterator list(branchPath);
-	for (auto& it : list) {
-		if (it.path().filename().u8string() == branchName) {
-			auto sha1 = readFile(it.path());
-			return { sha1.begin(), sha1.end() };
-		}
-	}
-	return {};
+	fs::path branchPath = GIT_DIR.value() / "refs" / "heads";
+	branchPath /= branchName;
 
+	auto sha1 = readFile(branchPath);
+	return { sha1.begin(), sha1.end() };
 }
+
 std::string readMain() {
 	fs::path headPath = GIT_DIR.value() / "HEAD";
 	auto buffer = readFile(headPath);

@@ -2,10 +2,7 @@
 #include "../cache/file.h"
 #include "../object/object.h"
 
-#include "../cache/file.h"
-
-#include "../3rdParty/sha1.hpp"
-#include <iostream>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -15,32 +12,45 @@ extern Command CheckoutCommand{
 	"Switch branches or restore working tree files"
 };
 
-void deleteDir(fs::path path) {
 
+bool deleteDir(fs::path path) {
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
 		std::cerr << "Error: " << fs::relative(path) << " is supposed to be a directory" << std::endl;
-		return;
+		return false;
 	}
 
 	fs::path ignore = path / ".s-gitignore";
 	if (fs::exists(ignore) && fs::file_size(ignore) == 0) {
 		// ignore this directory if there exists file ".s-gitignore" with empty content
-		return;
+		return false;
 	}
 
 	fs::directory_iterator list(path);
+	std::vector<fs::path> clear;
+	bool empty = true;
 
 	for (auto& it : list) {
 		if (it.path() == GIT_DIR) continue; // .s-git will not be archived
 
 		if (fs::is_directory(it.status())) {
-			deleteDir(it.path());
+			if (deleteDir(it.path())) {
+				clear.push_back(it.path());
+			}
+			else {
+				empty = false;
+			}
 		}
 		else if (fs::is_regular_file(it)) {
 			fs::remove(it.path());
 		}
 	}
+
+	for (auto &p : clear) {
+		fs::remove(p);
+	}
+
+	return empty;
 }
 
 void copyBranches(const fs::path& dir, const std::string& sha1) {
@@ -83,16 +93,16 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 				std::getline(file, tmpPath);
 				tmp.path = tmpPath;
 				tmp.path = dir / tmp.path;
+
 				if (tmp.object_type == "blob") {
 					copy_object_tofile(tmp.path, tmp.sha1);
-					// 复制文件过来
-					//path.push_back(tmp);
 				}
 				else if (tmp.object_type == "tree") {
-					//path.push_back(tmp);
-					// 新建文件夹
+					if (!fs::exists(tmp.path)) {
+						fs::create_directories(tmp.path);
+					}
+
 					copyBranches(tmp.path, tmp.sha1);
-					// 回去
 				}
 				else {
 					std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
@@ -116,22 +126,24 @@ int checkoutMain(int argc, const char* argv[]) {
 
 	argParser.footer("<which to switch  > ...");
 	argParser.parse_check(argc, argv);
-	//argParser.add<std::string>("sha1", 's', "Switch sha1", true, "");
 
-	argParser.parse_check(argc, argv);
-	//std::string ar;
 	if (argParser.get<std::string>("sha1").length()) {
 		std::string sha1 = argParser.get<std::string>("sha1");
+
 		deleteDir(ROOT_DIR.value());
+
 		commit  Commit;
 		readCommit(sha1, Commit);
 		copyBranches(ROOT_DIR.value(), Commit.tree);
-		//TODO 写回 head
+
+		// write HEAD
 		fs::path headDir = GIT_DIR.value() / "HEAD";
 		write_file(headDir, Commit.sha1.data(), Commit.sha1.size());
 
+		std::cout << "HEAD detached at" << sha1 << std::endl;
 		return 0;
 	}
+
 	if (argParser.get<std::string>("branches").length()) {
 		std::string branch = argParser.get<std::string>("branches");
 		std::string sha1 = readBranch(branch);
@@ -139,32 +151,42 @@ int checkoutMain(int argc, const char* argv[]) {
 			std::cerr << "Error:" << " doesn't have this  branch :" << branch << "\n";
 			return 1;
 		}
+
 		deleteDir(ROOT_DIR.value());
+
 		commit  branchCommit;
 		readCommit(sha1, branchCommit);
 		copyBranches(ROOT_DIR.value(), branchCommit.tree);
-		//TODO 写回 head branchCommit.sha1
-		fs::path branchPath = GIT_DIR.value() / "refs" / "branch";
+
+		// write head branchCommit.sha1
+		fs::path branchPath = fs::path("refs") / "heads" / branch;
 		fs::path headDir = GIT_DIR.value() / "HEAD";
-		std::string branchWrite = std::string{ "refs: " } +branchPath.u8string();
+		std::string branchWrite = std::string{ "ref: " } +branchPath.generic_u8string();
 		write_file(headDir, branchWrite.data(),branchWrite.size());
-		//writeMain(branchCommit.sha1);
+
+		std::cout << "Switched to branch '" << branch << '\'' << std::endl;
 		return 0;
 	}
+
 	if (argParser.get<std::string>("tag").length()) {
-		std::string tag = argParser.get<std::string>("sha1");
+		std::string tag = argParser.get<std::string>("tag");
 		std::string sha1 = readTag(tag);
 		if (sha1.length() == 0) {
 			std::cerr << "Error:" << " doesn't have this tag :" << tag << "\n";
 			return 1;
 		}
+
 		deleteDir(ROOT_DIR.value());
+
 		commit  tagCommit;
 		readCommit(sha1, tagCommit);
 		copyBranches(ROOT_DIR.value(), tagCommit.tree);
-		//TODO 写回 head tagCommit.sha1;
+
+		// write head tagCommit.sha1;
 		fs::path headDir = GIT_DIR.value() / "HEAD";
 		write_file(headDir, tagCommit.sha1.data(), tagCommit.sha1.size());
+
+		std::cout << "HEAD detached at" << sha1 << std::endl;
 		return 0;
 	}
 	std::cout << argParser.usage();

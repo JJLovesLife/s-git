@@ -9,7 +9,12 @@ namespace fs = std::filesystem;
 
 bool sha1Exist(const std::string &sha1) {
 	fs::path path = sha1_to_path(sha1);
-	return fs::exists(path);
+	try {
+		return fs::exists(path);
+	}
+	catch (fs::filesystem_error) {
+		return false;
+	}
 }
 
 bool checkSha1(const std::string &sha1) {
@@ -204,7 +209,7 @@ paths(const fs::path &path, std::set<fs::path>& Pathes) {
 		}
 	}
 }
-std::vector<char>
+std::optional<std::vector<char>>
 readRawFile(const std::string& sha1) {
 
 
@@ -249,5 +254,5 @@ readRawFile(const std::string& sha1) {
 void copy_object_tofile(const fs::path& path, const std::string& sha1) {
 	
 	auto buffer = readRawFile(sha1);
-	if (buffer.size()) write_file(path, buffer);
+	if (buffer.has_value()) write_file(path, buffer.value());
 }
