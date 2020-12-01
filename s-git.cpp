@@ -3,12 +3,12 @@
 #include <string>
 #include <iostream>
 
-extern const char *GIT_NAME = "s-git";
-extern const char *GIT_DESC = "s-git"
+const char *GIT_NAME = "s-git";
+const char *GIT_DESC = "s-git"
 	" is a simple but not stupid version-control system works like git.";
-extern std::optional<std::filesystem::path> GIT_DIR{};
-extern std::optional<std::filesystem::path> ROOT_DIR{};
-extern std::filesystem::path CWD{};
+std::optional<std::filesystem::path> GIT_DIR{};
+std::optional<std::filesystem::path> ROOT_DIR{};
+std::filesystem::path CWD{};
 
 static std::map<std::string, Command> funcTable;
 
@@ -26,6 +26,7 @@ static void initFuncTable() {
 	funcTable.emplace("checkout", CheckoutCommand);
 	funcTable.emplace("tag", TagCommand);
 	funcTable.emplace("log", LogCommand);
+	funcTable.emplace("branch", BranchCommand);
 }
 
 static void usage() {

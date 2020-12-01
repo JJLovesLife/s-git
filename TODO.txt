@@ -7,3 +7,7 @@
 // [CODE]
 // TODO: adding namespace
 // TODO: char to uint8_t
+
+// [PROJECT]
+// TODO: std::future
+// TODO: test

@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 
 int initMain(int argc, const char* argv[]);
-extern Command InitCommand{
+Command InitCommand{
 	initMain,
 	"init a new empty s-git repository"
 };

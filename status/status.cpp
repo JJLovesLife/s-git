@@ -9,7 +9,7 @@
 
 int status(int argc, const char* argv[]);
 
-extern Command StatusCommand{
+Command StatusCommand{
 	status,
 	"Show the working tree status"
 };

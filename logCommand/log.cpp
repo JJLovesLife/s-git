@@ -3,7 +3,7 @@
 #include "../object/object.h"
 
 int logMain(int argc, const char* argv[]);
-extern Command LogCommand{
+Command LogCommand{
 	logMain,
 	"Show commit logs"
 };

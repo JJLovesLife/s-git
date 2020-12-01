@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 
 int commitMain(int argc, const char* argv[]);
-extern Command CommitCommand{
+Command CommitCommand{
 	commitMain,
 	"Record changes to the repository"
 };

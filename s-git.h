@@ -22,5 +22,6 @@ extern Command CommitCommand;
 extern Command TagCommand;
 extern Command CheckoutCommand;
 extern Command LogCommand;
+extern Command BranchCommand;
 
 extern Command TestCommand;
