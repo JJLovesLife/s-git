@@ -23,6 +23,7 @@ static void initFuncTable() {
 	funcTable.emplace("init", InitCommand);
 	funcTable.emplace("status", StatusCommand);
 	funcTable.emplace("commit", CommitCommand);
+	funcTable.emplace("tag", TagCommand);
 }
 
 static void usage() {
@@ -81,7 +82,7 @@ int main(int argc, const char *argv[]) {
 }
 
 int version(int, const char*[]) {
-	std::cout << GIT_NAME << " versoin 0.3.0" << std::endl;
+	std::cout << GIT_NAME << " versoin 0.3.2" << std::endl;
 	return 0;
 }
 

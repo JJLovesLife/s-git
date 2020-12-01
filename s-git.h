@@ -19,5 +19,6 @@ struct Command {
 extern Command InitCommand;
 extern Command StatusCommand;
 extern Command CommitCommand;
+extern Command TagCommand;
 
 extern Command TestCommand;

@@ -2,6 +2,7 @@
 #include "../s-git.h"
 #include "../cache/file.h"
 
+#include <cctype>
 #include "../3rdParty/sha1.hpp"
 
 namespace fs = std::filesystem;
@@ -11,9 +12,20 @@ bool sha1Exist(const std::string &sha1) {
 	return fs::exists(path);
 }
 
+bool checkSha1(const std::string &sha1) {
+	if (sha1.length() != 40) return false;
+	for (auto c : sha1) {
+		if (!std::isxdigit(c) || std::isupper(c)) {
+			// only lower case hex digit is acceptable
+			return false;
+		}
+	}
+	return true;
+}
+
 bool readCommit(const std::string &sha1, commit& thisCommit) {
 	if (!sha1Exist(sha1)) {
-		std::cerr << "Error: " << GIT_NAME << " commit don'file exists" << std::endl;
+		std::cerr << "Error: " << GIT_NAME << " commit file doesn't exist" << std::endl;
 		return false;
 	}
 

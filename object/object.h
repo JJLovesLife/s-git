@@ -23,6 +23,9 @@ struct commit {
 bool readCommit(const std::string &sha1, commit& thisCommit);
 
 bool sha1Exist(const std::string &sha1);
+
+bool checkSha1(const std::string &sha1);
+
 std::filesystem::path sha1_to_path(const std::string &sha1);
 
 

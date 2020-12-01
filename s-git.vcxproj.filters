@@ -32,6 +32,9 @@
     <ClCompile Include="test\test.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="tag\tag.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="s-git.h">

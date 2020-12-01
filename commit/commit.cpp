@@ -28,11 +28,7 @@ fileIndex(fs::path path) {
 	object thisBlob;
 	thisBlob.object_type = "blob";
 	thisBlob.path = path;
-	thisBlob.sha1 = hash_blob_path(path, false);
-
-	if (!sha1Exist(thisBlob.sha1)) {
-		hash_blob_path(path, true);
-	}
+	thisBlob.sha1 = hash_blob_path(path, true);
 
 	return thisBlob;
 }
@@ -59,6 +55,12 @@ build_tree(fs::path path) {
 	if (entry.status().type() != fs::file_type::directory) {
 		std::cerr << "Error: " << GIT_NAME << " is not a directory" << std::endl;
 		return object{};
+	}
+
+	fs::path ignore = path / ".s-gitignore";
+	if (fs::exists(ignore) && fs::file_size(ignore) == 0) {
+		// ignore this directory if there exists file ".s-gitignore" with empty content
+		return {};
 	}
 
 	fs::directory_iterator list(path);
@@ -99,6 +101,10 @@ int commitMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.add<std::string>("message", 'm', "commit message", true, "");
 	argParser.parse_check(argc, argv);
+	if (!GIT_DIR.has_value()) {
+		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
+		return 1;
+	}
 
 	std::string  message = argParser.get<std::string>("message");
 

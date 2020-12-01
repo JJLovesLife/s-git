@@ -32,7 +32,7 @@ status(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
 	if (!GIT_DIR.has_value()) {
-		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)";
+		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
 		return 1;
 	}
 
