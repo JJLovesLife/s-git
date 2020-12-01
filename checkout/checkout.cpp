@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 
 int checkoutMain(int argc, const char* argv[]);
-extern Command CheckoutCommand{
+Command CheckoutCommand{
 	checkoutMain,
 	"Switch branches or restore working tree files"
 };

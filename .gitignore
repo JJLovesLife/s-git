@@ -261,3 +261,7 @@ __pycache__/
 *.pyc
 
 .s-git/
+*build
+
+# linux build executable
+s-git
