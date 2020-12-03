@@ -38,7 +38,7 @@ status(int argc, const char* argv[]) {
 
 	std::set<fs::path> Pathes;
 
-	paths(ROOT_DIR.value(), Pathes);
+	Pathes = paths(ROOT_DIR.value());
 	std::string commitSha1 = readMain();
 	
 	if (commitSha1.length()==0) {

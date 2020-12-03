@@ -89,6 +89,7 @@ build_tree(fs::path path) {
 	}
 
 	object thisTree;
+	
 	sort(v.begin(), v.end(), cmp);
 	thisTree.object_type = "tree";
 	thisTree.sha1 = write_tree(v);
@@ -110,7 +111,7 @@ int commitMain(int argc, const char* argv[]) {
 
 
 	std::set<fs::path> Pathes;
-	paths(ROOT_DIR.value(), Pathes);
+	Pathes = paths(ROOT_DIR.value());
 
 	std::string commitSha1 = readMain();
 	if (commitSha1.length()==0) {

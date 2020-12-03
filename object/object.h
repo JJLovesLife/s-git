@@ -2,6 +2,9 @@
 #include <filesystem>
 #include <string>
 #include <set>
+#include <future>
+
+namespace fs = std::filesystem;
 
 struct object {
 	std::string object_type;
@@ -45,7 +48,7 @@ struct opt_path_hash {
 	}
 };
 
-void
-paths(const std::filesystem::path &path, std::set<std::filesystem::path>& Pathes);
+std::set<fs::path>
+paths(const std::filesystem::path &path);
 
 void copy_object_tofile(const std::filesystem::path& path, const std::string& sha1);

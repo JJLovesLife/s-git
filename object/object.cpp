@@ -4,8 +4,13 @@
 
 #include <cctype>
 #include "../3rdParty/sha1.hpp"
-
+#include <mutex>
+#include <future>
+#include <algorithm>
 namespace fs = std::filesystem;
+
+
+std::mutex mtx; 
 
 bool sha1Exist(const std::string &sha1) {
 	fs::path path = sha1_to_path(sha1);
@@ -183,31 +188,67 @@ std::string hash_blob_path(const fs::path &path, bool write) {
 
 
 
-void
-paths(const fs::path &path, std::set<fs::path>& Pathes) {
+std::set<fs::path>
+paths(const fs::path &path) {
+	std::set<fs::path> Pathes;
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
 		std::cerr << "Error: " << fs::relative(path) << " is supposed to be a directory" << std::endl;
-		return;
+		return {};
 	}
 
 	fs::path ignore = path / ".s-gitignore";
 	if (fs::exists(ignore) && fs::file_size(ignore) == 0) {
 		// ignore this directory if there exists file ".s-gitignore" with empty content
-		return;
+		return {};
 	}
 
+	int cnt = std::count_if(
+		fs::directory_iterator(path),
+		fs::directory_iterator(),
+		static_cast<bool(*)(const fs::path&)>(fs::is_directory));
 	fs::directory_iterator list(path);
-	for (auto& it : list) {
-		if (it.path() == GIT_DIR) continue; // .s-git will not be archived
+	//std::cout << cnt << "\n";
+	if (cnt > 5 ){
+		std::vector< std::future< std::set<fs::path> > > f(cnt);
+		int i = 0 ; 
+		for (auto& it:list ){
+			if (it.path() == GIT_DIR) continue;
+			if (fs::is_directory(it.status())){
+				f[i] = std::async(std::launch::deferred | std::launch::async , paths,it.path());
+				++i;
+			}
+			else 
+				if (fs::is_regular_file(it)) {
+					Pathes.insert(it.path());
+				}
+			
+			}
+		for (int j=0;j< i;++j){
+			std::set<fs::path>  tmp =f[j].get();
+			Pathes.insert(tmp.begin(), tmp.end());
+		}
 
-		if (fs::is_directory(it.status())) {
-			paths(it, Pathes);
-		}
-		else if (fs::is_regular_file(it)) {
-			Pathes.insert(it.path());
-		}
+		return Pathes;
+
+	}else{
+
+			for (auto& it : list) {
+
+				if (it.path() == GIT_DIR) continue; // .s-git will not be archived
+
+				if (fs::is_directory(it.status())) {
+					std::set<fs::path>  tmp = paths(it.path());
+					Pathes.insert(tmp.begin(), tmp.end());
+				}
+				else if (fs::is_regular_file(it)) {
+					Pathes.insert(it.path());
+				}
+
+			}
+			return Pathes;
 	}
+	
 }
 std::optional<std::vector<char>>
 readRawFile(const std::string& sha1) {
