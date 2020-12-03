@@ -265,3 +265,4 @@ __pycache__/
 
 # linux build executable
 s-git
+test/s-git_tmp*

@@ -15,7 +15,7 @@ int initMain(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
 
-	if (GIT_DIR.has_value()) {
+	if (GIT_DIR.has_value() && ROOT_DIR.value() == CWD) {
 		std::cerr << "Error: " << GIT_NAME << " repository already exists" << std::endl;
 		return 1;
 	}

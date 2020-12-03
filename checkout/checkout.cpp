@@ -178,7 +178,7 @@ int checkoutMain(int argc, const char* argv[]) {
 		fs::path headDir = GIT_DIR.value() / "HEAD";
 		write_file(headDir, Commit.sha1.data(), Commit.sha1.size());
 
-		std::cout << "HEAD detached at" << sha1 << std::endl;
+		std::cout << "HEAD detached at " << sha1 << std::endl;
 		return 0;
 	}
 
@@ -232,7 +232,7 @@ int checkoutMain(int argc, const char* argv[]) {
 		fs::path headDir = GIT_DIR.value() / "HEAD";
 		write_file(headDir, tagCommit.sha1.data(), tagCommit.sha1.size());
 
-		std::cout << "HEAD detached at" << sha1 << std::endl;
+		std::cout << "HEAD detached at " << sha1 << std::endl;
 		return 0;
 	}
 	std::cout << argParser.usage();

@@ -66,7 +66,8 @@ int tagMain(int argc, const char* argv[]) {
 		std::string sha1 = readMain();
 		commit dummy;
 		if (!checkSha1(sha1) || !readCommit(sha1, dummy)) {
-			std::cerr << "Error: failed to resolve 'HEAD' as a valid commit";
+			std::cerr << "Error: failed to resolve 'HEAD' as a valid commit" << std::endl;
+			return 1;
 		}
 
 		bool error = false;
