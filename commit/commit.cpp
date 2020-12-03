@@ -80,7 +80,7 @@ build_tree(fs::path path) {
 			v.push_back(fileIndex(it.path()));
 		}
 		else {
-			std::cerr << red  <<"Warning: " << fs::relative(it.path()) << " is neither a directory or a regular file"<<Reset << std::endl;
+			std::cerr << red  << "Warning: " << fs::relative(it.path()) << " is neither a directory or a regular file" << Reset << std::endl;
 		}
 	}
 	
@@ -122,7 +122,7 @@ int commitMain(int argc, const char* argv[]) {
 		writeMain(newcommitSha1);
 
 		std::cout << "first commit  \n";
-		std::cout << blod_yellow <<"[main (root-commit) " << newcommitSha1.substr(0, 7) << "]" <<Reset << "\n";
+		std::cout << blod_yellow << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]" << Reset << "\n";
 
 		std::cout << Pathes.size() << " file inserted(+)\n";
 		for (auto& path : Pathes) {
@@ -210,7 +210,7 @@ int commitMain(int argc, const char* argv[]) {
 			std::string newcommitSha1 = writeCommit(treeSha, parentCommit.sha1, message);
 			writeMain(newcommitSha1);
 
-			std::cout << blod_yellow <<"[main " << newcommitSha1.substr(0, 7) << "]" << Reset << "\n";
+			std::cout << blod_yellow << "[main " << newcommitSha1.substr(0, 7) << "]" << Reset << "\n";
 
 			std::cout << " " << changedFiles << " files changed,"
 				<< " " << newFiles << " files inserted(+), " << " " << deleteFiles << " files deleted(-) \n";

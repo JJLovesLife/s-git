@@ -22,12 +22,12 @@ int logMain(int argc, const char* argv[]) {
 	commit currCommit;
 	while (readCommit(sha1, currCommit)) {
 		std::cout << yellow << "[commit " << currCommit.sha1 << ']' << Reset << std::endl;
-		std::cout << cyan << "mmessage:" << std::endl;
-		std::cout << std::endl <<Reset;
+		std::cout << cyan << "mmessage:" << Reset << std::endl;
+		std::cout << std::endl;
 
 		std::cout << currCommit.message;
 
-		std::cout  << std::endl << std::endl;
+		std::cout << std::endl << std::endl;
 		sha1 = currCommit.parent;
 	}
 	return 0;

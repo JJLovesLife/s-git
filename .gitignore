@@ -261,8 +261,11 @@ __pycache__/
 *.pyc
 
 .s-git/
-*build
 
-# linux build executable
+# cmake
+*build
 s-git*
+CMakeSettings.json
+
+# test output
 test/s-git_tmp*

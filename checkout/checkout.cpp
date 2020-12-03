@@ -67,7 +67,7 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 		std::getline(file, type, ' ');
 
 		if (file.peek() < '0' || file.peek() > '9') {
-			std::cerr << red <<"Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
+			std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
 			return;
 		}
 		size_t size;
@@ -76,7 +76,7 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 		char nullChar;
 		file >> nullChar;
 		if (nullChar != '\0') {
-			std::cerr <<red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset <<std::endl;
+			std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
 			return;
 		}
 
@@ -106,13 +106,13 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 					copyBranches(tmp.path, tmp.sha1);
 				}
 				else {
-					std::cerr <<red << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << Reset <<std::endl;
+					std::cerr << red << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << Reset << std::endl;
 				}
 			}
 		}
 	}
 	else {
-		std::cerr <<red << "Error: " << GIT_NAME << " Tree don'file exists" << Reset <<std::endl;
+		std::cerr << red << "Error: " << GIT_NAME << " Tree don'file exists" << Reset << std::endl;
 		return;
 	}
 }

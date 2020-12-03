@@ -19,7 +19,7 @@ int tagMain(int argc, const char* argv[]) {
 	argParser.parse_check(argc, argv);
 
 	if (!GIT_DIR.has_value()) {
-		std::cout <<red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" <<Reset << std::endl;
+		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << Reset << std::endl;
 		return 1;
 	}
 
@@ -29,7 +29,7 @@ int tagMain(int argc, const char* argv[]) {
 
 	if (!fs::exists(tagDir)) {
 		if (!fs::create_directories(tagDir)) {
-			std::cerr <<red << "Error: unable to create tag directory" <<Reset<< std::endl;
+			std::cerr << red << "Error: unable to create tag directory" << Reset << std::endl;
 			return 1;
 		}
 	}
@@ -56,7 +56,7 @@ int tagMain(int argc, const char* argv[]) {
 					error = true;
 				}
 				else {
-					std::cout << yellow << "Deleted tag '" << tagName << '\'' <<Reset << std::endl;
+					std::cout << yellow << "Deleted tag '" << tagName << '\'' << Reset << std::endl;
 				}
 			}
 		}
@@ -66,7 +66,7 @@ int tagMain(int argc, const char* argv[]) {
 		std::string sha1 = readMain();
 		commit dummy;
 		if (!checkSha1(sha1) || !readCommit(sha1, dummy)) {
-			std::cerr <<red << "Error: failed to resolve 'HEAD' as a valid commit" << Reset << std::endl;
+			std::cerr << red << "Error: failed to resolve 'HEAD' as a valid commit" << Reset << std::endl;
 			return 1;
 		}
 
@@ -74,12 +74,12 @@ int tagMain(int argc, const char* argv[]) {
 		for (auto tagName : argParser.rest()) {
 			fs::path tagPath = tagDir / tagName;
 			if (fs::exists(tagPath)) {
-				std::cerr <<red << "Error: tag '" << tagName << "' already exists" <<Reset << std::endl;
+				std::cerr << red << "Error: tag '" << tagName << "' already exists" << Reset << std::endl;
 				error = true;
 			}
 			else {
 				write_file(tagPath, sha1.data(), sha1.length());
-				std::cout << "Added tag '"<<blod_blue  << tagName <<Reset << '\'' << std::endl;
+				std::cout << "Added tag '" << blod_blue  << tagName << Reset << '\'' << std::endl;
 			}
 		}
 		return error ? 1 : 0;

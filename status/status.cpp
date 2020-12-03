@@ -32,7 +32,7 @@ status(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
 	if (!GIT_DIR.has_value()) {
-		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << Reset <<std::endl;
+		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << Reset << std::endl;
 		return 1;
 	}
 
@@ -43,10 +43,11 @@ status(int argc, const char* argv[]) {
 	
 	if (commitSha1.length()==0) {
 		std::cout << "No commits yet  \n";
-		std::cout << "Untracked files:\n";
+		std::cout << red << "Untracked files:\n";
 		for (auto& path : Pathes) {
 			std::cout << '\t' << fs::relative(path).generic_string() << '\n';
 		}
+		std::cout << Reset;
 	}
 	else {
 		std::vector<object> entries; // objects in current commit
@@ -55,10 +56,11 @@ status(int argc, const char* argv[]) {
 		commit parentCommit;
 		if (!readCommit(commitSha1, parentCommit)) {
 			std::cout << "No commits yet  \n";
-			std::cout << "Untracked files:\n";
+			std::cout << red << "Untracked files:\n";
 			for (auto& path : Pathes) {
 				std::cout << '\t' << fs::relative(path).generic_string() << '\n';
 			}
+			std::cout << Reset;
 			return 0;
 		}
 
@@ -79,7 +81,7 @@ status(int argc, const char* argv[]) {
 			entries_map[e.path] = e.sha1;
 		}
 
-		std::cout<< blod_green << "changed files: \n";
+		std::cout << blod_green << "changed files: \n";
 		for (auto &p:Pathes) {
 			if (entries_path_set.count(p) != 0) {
 				std::string sha1_1 = hash_blob_path(p, false);
@@ -91,7 +93,7 @@ status(int argc, const char* argv[]) {
 			}
 		}
 		std::cout << Reset;
-		std::cout <<green<< "new files: \n";
+		std::cout << green << "new files: \n";
 		for (auto& p : Pathes){
 			if (entries_path_set.count(p)==0) {
 				std::cout << '\t' << fs::relative(p).generic_string() << '\n';

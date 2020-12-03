@@ -13,7 +13,7 @@ Command LsTreeCommand{
 
 void coutTree(const std::string& sha1, fs::path dir) {
 	if (!sha1Exist(sha1)) {
-		std::cerr << "Error: " << GIT_NAME << " commit file doesn't exist" << std::endl;
+		std::cerr << red << "Error: " << GIT_NAME << " commit file doesn't exist" << Reset << std::endl;
 		return;
 	}
 	fs::path treePath = sha1_to_path(sha1);
@@ -23,7 +23,7 @@ void coutTree(const std::string& sha1, fs::path dir) {
 	std::getline(file, type, ' ');
 
 	if (file.peek() < '0' || file.peek() > '9') {
-		std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+		std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
 		return;
 	}
 	size_t size;
@@ -32,16 +32,16 @@ void coutTree(const std::string& sha1, fs::path dir) {
 	char nullChar;
 	file >> nullChar;
 	if (nullChar != '\0') {
-		std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+		std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
 		return;
 	}
 
 	if (type == "blob") {
-		std::cerr << "Error: want tree object, get blob object." << std::endl;
+		std::cerr << red << "Error: want tree object, get blob object." << Reset << std::endl;
 		return;
 	}
 	else {
-		std::cout << "tree " << sha1 << ' ' << dir.generic_string() << std::endl;
+		std::cout << green << "tree " << yellow << sha1 << Reset << ' ' << dir.generic_string() << std::endl;
 		while (file.peek() != decltype(file)::traits_type::eof()) {
 			object tmp;
 			std::getline(file, tmp.object_type, ' ');
@@ -52,14 +52,13 @@ void coutTree(const std::string& sha1, fs::path dir) {
 			fs::path path = dir / tmpPath;
 
 			if (tmp.object_type == "blob") {
-				std::cout << "     -blob " << tmp.sha1 << ' ' << path.generic_string() << std::endl;
+				std::cout << "     " << blod_blue << "-blob " << yellow << tmp.sha1 << Reset << ' ' << path.generic_string() << std::endl;
 			}
 			else if (tmp.object_type == "tree") {
-				//std::cout << "     -blob " << tmp.sha1 << ' ' << tmpPath << std::endl;
 				coutTree(tmp.sha1, path);
 			}
 			else {
-				std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
+				std::cerr << red << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << Reset << std::endl;
 			}
 		}
 	}
@@ -79,7 +78,7 @@ int lsTreeMain(int argc, const char* argv[]) {
 	}
 	commit currCommit;
 	if (!readCommit(commitSha1, currCommit)) {
-		std::cerr << "Error: " << commitSha1 << " is not a commit object." << std::endl;
+		std::cerr << red << "Error: " << commitSha1 << " is not a commit object." << Reset << std::endl;
 	}
 
 	coutTree(currCommit.tree, fs::path("/"));

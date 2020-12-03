@@ -37,3 +37,6 @@ make
 	add log command to check history  
 - v0.6.0  
 	add revision support in checkout command  
+- v0.7.0  
+	add ls-tree command to check tree layout of commit  
+	improve user experience  
