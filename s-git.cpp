@@ -18,7 +18,6 @@ static int version(int, const char*[]);
 static void initFuncTable() {
 	funcTable.emplace("help", Command{ help, "show this description." });
 	funcTable.emplace("version", Command{ version, "version info." });
-	funcTable.emplace("test", TestCommand);
 
 	funcTable.emplace("init", InitCommand);
 	funcTable.emplace("status", StatusCommand);
@@ -27,6 +26,7 @@ static void initFuncTable() {
 	funcTable.emplace("tag", TagCommand);
 	funcTable.emplace("log", LogCommand);
 	funcTable.emplace("branch", BranchCommand);
+	funcTable.emplace("ls-tree", LsTreeCommand);
 }
 
 static void usage() {

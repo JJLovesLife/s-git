@@ -1,5 +1,5 @@
 import argparse, logging, traceback
-import os, sys
+import os, sys, shutil
 import subprocess as sp
 
 logging.basicConfig(level=logging.INFO)
@@ -241,6 +241,13 @@ def LoadTmpDir():
     count += 1
   raise "too many tmp directory, please clear them before testing"
 
+def DeleteTmpDir():
+  dir = os.path.abspath(os.getcwd())
+  logging.info(f"exit tmp directory {os.path.basename(dir)}")
+  os.chdir("..")
+  logging.info(f"remove tmp directory {dir}")
+  shutil.rmtree(dir)
+
 def main():
   try:
     TestInit()
@@ -289,3 +296,4 @@ if __name__ == "__main__":
 
   LoadTmpDir()
   main()
+  DeleteTmpDir()

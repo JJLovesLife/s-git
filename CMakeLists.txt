@@ -17,9 +17,9 @@ aux_source_directory(./init INIT_LIST)
 aux_source_directory(./logCommand LOG_LIST)
 aux_source_directory(./status STATUS_LIST)
 aux_source_directory(./tag TAG_LIST)
-aux_source_directory(./test TEST_LIST)
 aux_source_directory(./branch BRANCH_LIST)
 aux_source_directory(./checkout CHECKOUT_LIST)
+aux_source_directory(./ls-tree LS_TREE_LIST)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
@@ -30,9 +30,9 @@ add_executable(s-git ${MAIN_LIST}
 	${LOG_LIST}
 	${STATUS_LIST}
 	${TAG_LIST}
-	${TEST_LIST}
 	${BRANCH_LIST}
 	${CHECKOUT_LIST}
+	${LS_TREE_LIST}
 )
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	target_link_libraries(s-git stdc++fs)
