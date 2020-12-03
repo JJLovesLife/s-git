@@ -32,7 +32,7 @@ status(int argc, const char* argv[]) {
 	cmdline::parser argParser;
 	argParser.parse_check(argc, argv);
 	if (!GIT_DIR.has_value()) {
-		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
+		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << Reset <<std::endl;
 		return 1;
 	}
 
@@ -79,7 +79,7 @@ status(int argc, const char* argv[]) {
 			entries_map[e.path] = e.sha1;
 		}
 
-		std::cout << "changed files: \n";
+		std::cout<< blod_green << "changed files: \n";
 		for (auto &p:Pathes) {
 			if (entries_path_set.count(p) != 0) {
 				std::string sha1_1 = hash_blob_path(p, false);
@@ -90,16 +90,16 @@ status(int argc, const char* argv[]) {
 				}
 			}
 		}
-
-		std::cout << "new files: \n";
+		std::cout << Reset;
+		std::cout <<green<< "new files: \n";
 		for (auto& p : Pathes){
 			if (entries_path_set.count(p)==0) {
 				std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 				clean = false;
 			}
 		}
-
-		std::cout << "delete files: \n";
+		std::cout << Reset;
+		std::cout << cyan << "delete files: \n";
 		for (auto& e : entries) {
 			if (e.object_type != "blob") continue;
 			auto &p = e.path;
@@ -108,6 +108,7 @@ status(int argc, const char* argv[]) {
 				clean = false;
 			}
 		}
+		std::cout << Reset;
 
 		if (clean) {
 			std::cout << "nothing to commit, working tree clean\n";

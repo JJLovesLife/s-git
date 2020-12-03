@@ -19,7 +19,7 @@ int branchMain(int argc, const char* argv[]) {
 	argParser.parse_check(argc, argv);
 
 	if (!GIT_DIR.has_value()) {
-		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
+		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" <<Reset <<std::endl;
 		return 1;
 	}
 
@@ -29,7 +29,7 @@ int branchMain(int argc, const char* argv[]) {
 
 	if (!fs::exists(branchDir)) {
 		if (!fs::create_directories(branchDir)) {
-			std::cerr << "Error: unable to create branch directory" << std::endl;
+			std::cerr <<red  << "Error: unable to create branch directory" << Reset << std::endl;
 			return 1;
 		}
 	}
@@ -73,19 +73,19 @@ int branchMain(int argc, const char* argv[]) {
 		std::string sha1 = readMain();
 		commit dummy;
 		if (!checkSha1(sha1) || !readCommit(sha1, dummy)) {
-			std::cerr << "Error: failed to resolve 'HEAD' as a valid commit";
+			std::cerr << red << "Error: failed to resolve 'HEAD' as a valid commit" << Reset;
 		}
 
 		bool error = false;
 		for (auto branchName : argParser.rest()) {
 			fs::path branchPath = branchDir / branchName;
 			if (fs::exists(branchPath)) {
-				std::cerr << "Error: branch '" << branchName << "' already exists" << std::endl;
+				std::cerr << red << "Error: branch '" << branchName << "' already exists" <<Reset << std::endl;
 				error = true;
 			}
 			else {
 				write_file(branchPath, sha1.data(), sha1.length());
-				std::cout << "Added branch '" << branchName << '\'' << std::endl;
+				std::cout << "Added branch '" <<blod_blue <<branchName <<Reset <<'\'' << std::endl;
 			}
 		}
 		return error ? 1 : 0;

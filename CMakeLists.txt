@@ -5,6 +5,7 @@ project(S_GIT)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+include_directories(.)
 
 aux_source_directory(. MAIN_LIST)
 

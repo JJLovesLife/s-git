@@ -80,7 +80,7 @@ build_tree(fs::path path) {
 			v.push_back(fileIndex(it.path()));
 		}
 		else {
-			std::cerr << "Warning: " << fs::relative(it.path()) << " is neither a directory or a regular file" << std::endl;
+			std::cerr << red  <<"Warning: " << fs::relative(it.path()) << " is neither a directory or a regular file"<<Reset << std::endl;
 		}
 	}
 	
@@ -103,7 +103,7 @@ int commitMain(int argc, const char* argv[]) {
 	argParser.add<std::string>("message", 'm', "commit message", true, "");
 	argParser.parse_check(argc, argv);
 	if (!GIT_DIR.has_value()) {
-		std::cout << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << std::endl;
+		std::cout << red << "fatal: not a " << GIT_NAME << " repository(or any of the parent directories)" << Reset << std::endl;
 		return 1;
 	}
 
@@ -122,7 +122,7 @@ int commitMain(int argc, const char* argv[]) {
 		writeMain(newcommitSha1);
 
 		std::cout << "first commit  \n";
-		std::cout << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]\n";
+		std::cout << blod_yellow <<"[main (root-commit) " << newcommitSha1.substr(0, 7) << "]" <<Reset << "\n";
 
 		std::cout << Pathes.size() << " file inserted(+)\n";
 		for (auto& path : Pathes) {
@@ -139,7 +139,7 @@ int commitMain(int argc, const char* argv[]) {
 			writeMain(newcommitSha1);
 
 			std::cout << "first commit  \n";
-			std::cout << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]\n";
+			std::cout << blod_yellow << "[main (root-commit) " << newcommitSha1.substr(0, 7) << "]" << Reset << "\n";
 
 			std::cout << Pathes.size() << " file inserted(+)\n";
 			for (auto& path : Pathes) {
@@ -176,8 +176,7 @@ int commitMain(int argc, const char* argv[]) {
 				entries_path_set.insert(e.path);
 				entries_map[e.path] = e.sha1;
 			}
-
-			std::cout << "changed files: \n";
+			std::cout << blod_green << "changed files: \n";
 			for (auto& p : Pathes) {
 				if (entries_path_set.count(p) != 0) {
 					std::string sha1_1 = hash_blob_path(p, false);
@@ -188,16 +187,16 @@ int commitMain(int argc, const char* argv[]) {
 					}
 				}
 			}
-
-			std::cout << "new files: \n";
+			std::cout << Reset;
+			std::cout << green << "new files: \n";
 			for (auto& p : Pathes) {
 				if (entries_path_set.count(p) == 0) {
 					++newFiles;
 					std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 				}
 			}
-
-			std::cout << "delete files: \n";
+			std::cout << Reset;
+			std::cout << cyan << "delete files: \n";
 			for (auto& e : entries) {
 				if (e.object_type != "blob") continue;
 				auto &p = e.path;
@@ -206,11 +205,12 @@ int commitMain(int argc, const char* argv[]) {
 					std::cout << '\t' << fs::relative(p).generic_string() << '\n';
 				}
 			}
+			std::cout << Reset;
 
 			std::string newcommitSha1 = writeCommit(treeSha, parentCommit.sha1, message);
 			writeMain(newcommitSha1);
 
-			std::cout << "[main " << newcommitSha1.substr(0, 7) << "]\n";
+			std::cout << blod_yellow <<"[main " << newcommitSha1.substr(0, 7) << "]" << Reset << "\n";
 
 			std::cout << " " << changedFiles << " files changed,"
 				<< " " << newFiles << " files inserted(+), " << " " << deleteFiles << " files deleted(-) \n";

@@ -40,7 +40,7 @@ bool readCommit(const std::string &sha1, commit& thisCommit) {
 	}
 
 	if (!sha1Exist(sha1)) {
-		std::cerr << "Error: " << GIT_NAME << " commit file doesn't exist" << std::endl;
+		std::cerr << red << "Error: " << GIT_NAME << " commit file doesn't exist" << Reset <<std::endl;
 		return false;
 	}
 
@@ -80,7 +80,7 @@ void readTree(const fs::path &dir, const std::string &sha1, std::vector<object>&
 		std::getline(file, type, ' ');
 
 		if (file.peek() < '0' || file.peek() > '9') {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+			std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset<< std::endl;
 			return;
 		}
 		size_t size;
@@ -89,12 +89,12 @@ void readTree(const fs::path &dir, const std::string &sha1, std::vector<object>&
 		char nullChar;
 		file >> nullChar;
 		if (nullChar != '\0') {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+			std::cerr << red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" <<Reset<< std::endl;
 			return;
 		}
 
 		if (type != "tree") {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this is not a tree, read tree failed" << std::endl;
+			std::cerr <<red << "Error: " << GIT_NAME << sha1 << " this is not a tree, read tree failed" << Reset << std::endl;
 			return;
 		}
 		else {
@@ -116,13 +116,13 @@ void readTree(const fs::path &dir, const std::string &sha1, std::vector<object>&
 					readTree(tmp.path, tmp.sha1, path);
 				}
 				else {
-					std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
+					std::cerr << red << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged"<< Reset << std::endl;
 				}
 			}
 		}
 	}
 	else {
-		std::cerr << "Error: " << GIT_NAME << " Tree don'file exists" << std::endl;
+		std::cerr <<red << "Error: " << GIT_NAME << " Tree don'file exists" <<Reset << std::endl;
 		return;
 	}
 }
@@ -193,7 +193,7 @@ paths(const fs::path &path) {
 	std::set<fs::path> Pathes;
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
-		std::cerr << "Error: " << fs::relative(path) << " is supposed to be a directory" << std::endl;
+		std::cerr << red << "Error: " << fs::relative(path) << " is supposed to be a directory" << Reset << std::endl;
 		return {};
 	}
 

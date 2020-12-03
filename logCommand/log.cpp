@@ -21,13 +21,13 @@ int logMain(int argc, const char* argv[]) {
 	std::string sha1 = readMain();
 	commit currCommit;
 	while (readCommit(sha1, currCommit)) {
-		std::cout << "\033[33m[commit " << currCommit.sha1 << ']' << std::endl;
-		std::cout << "\033[1;36mmessage:\033[m" << std::endl;
-		std::cout << std::endl;
+		std::cout << yellow << "[commit " << currCommit.sha1 << ']' << Reset << std::endl;
+		std::cout << cyan << "mmessage:" << std::endl;
+		std::cout << std::endl <<Reset;
 
 		std::cout << currCommit.message;
 
-		std::cout << std::endl << std::endl;
+		std::cout  << std::endl << std::endl;
 		sha1 = currCommit.parent;
 	}
 	return 0;

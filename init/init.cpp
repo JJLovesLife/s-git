@@ -16,14 +16,14 @@ int initMain(int argc, const char* argv[]) {
 	argParser.parse_check(argc, argv);
 
 	if (GIT_DIR.has_value() && ROOT_DIR.value() == CWD) {
-		std::cerr << "Error: " << GIT_NAME << " repository already exists" << std::endl;
+		std::cerr <<red << "Error: " << GIT_NAME << " repository already exists" << Reset <<std::endl;
 		return 1;
 	}
 
 	fs::path gitDir(std::string{ '.' } + GIT_NAME);
 
 	if (!fs::create_directories(gitDir)) {
-		std::cerr << "Error: failed to create " << gitDir << std::endl;
+		std::cerr <<red<< "Error: failed to create " << gitDir <<Reset<< std::endl;
 		return 1;
 	}
 	else {

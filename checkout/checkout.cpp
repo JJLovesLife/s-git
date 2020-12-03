@@ -13,10 +13,11 @@ Command CheckoutCommand{
 };
 
 
+
 bool deleteDir(fs::path path) {
 	fs::directory_entry entry(path);
 	if (entry.status().type() != fs::file_type::directory) {
-		std::cerr << "Error: " << fs::relative(path) << " is supposed to be a directory" << std::endl;
+		std::cerr << red << "Error: " << fs::relative(path) << " is supposed to be a directory" << Reset << std::endl;
 		return false;
 	}
 
@@ -66,7 +67,7 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 		std::getline(file, type, ' ');
 
 		if (file.peek() < '0' || file.peek() > '9') {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+			std::cerr << red <<"Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset << std::endl;
 			return;
 		}
 		size_t size;
@@ -75,12 +76,12 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 		char nullChar;
 		file >> nullChar;
 		if (nullChar != '\0') {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << std::endl;
+			std::cerr <<red << "Error: " << GIT_NAME << sha1 << " this file is corrupted, read tree failed" << Reset <<std::endl;
 			return;
 		}
 
 		if (type != "tree") {
-			std::cerr << "Error: " << GIT_NAME << sha1 << " this is not a tree, read tree failed" << std::endl;
+			std::cerr << red << "Error: " << GIT_NAME << sha1 << " this is not a tree, read tree failed" << Reset << std::endl;
 			return;
 		}
 		else {
@@ -105,13 +106,13 @@ void copyBranches(const fs::path& dir, const std::string& sha1) {
 					copyBranches(tmp.path, tmp.sha1);
 				}
 				else {
-					std::cerr << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << std::endl;
+					std::cerr <<red << "Error:" << GIT_NAME << " " << sha1 << " Tree object  raw data damaged" << Reset <<std::endl;
 				}
 			}
 		}
 	}
 	else {
-		std::cerr << "Error: " << GIT_NAME << " Tree don'file exists" << std::endl;
+		std::cerr <<red << "Error: " << GIT_NAME << " Tree don'file exists" << Reset <<std::endl;
 		return;
 	}
 }
