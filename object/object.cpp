@@ -203,7 +203,7 @@ paths(const fs::path &path) {
 		return {};
 	}
 
-	int cnt = std::count_if(
+	size_t cnt = std::count_if(
 		fs::directory_iterator(path),
 		fs::directory_iterator(),
 		static_cast<bool(*)(const fs::path&)>(fs::is_directory));
