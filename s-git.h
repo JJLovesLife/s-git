@@ -45,3 +45,4 @@ extern Command CheckoutCommand;
 extern Command LogCommand;
 extern Command BranchCommand;
 extern Command LsTreeCommand;
+extern Command MergeCommand;

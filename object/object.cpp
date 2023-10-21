@@ -34,8 +34,9 @@ bool checkSha1(const std::string &sha1) {
 }
 
 bool readCommit(const std::string &sha1, commit& thisCommit) {
-	if (sha1 == "NULL") {
+	if (sha1 == ""){
 		// not error, but also not commit
+		std::cerr << red << "Error: " << GIT_NAME << " your current branch 'master' does not have any commits yet" << Reset << std::endl;
 		return false;
 	}
 
@@ -69,7 +70,7 @@ bool readCommit(const std::string &sha1, commit& thisCommit) {
 }
 
 void readTree(const fs::path &dir, const std::string &sha1, std::vector<object>& path) {
-	if (sha1 == "NULL") {
+	if (sha1 == "") {
 		return;
 	}
 	if (sha1Exist(sha1)) {
@@ -254,7 +255,7 @@ std::optional<std::vector<char>>
 readRawFile(const std::string& sha1) {
 
 
-	if (sha1 == "NULL") {
+	if (sha1 == "") {
 		return {};
 	}
 	if (sha1Exist(sha1)) {

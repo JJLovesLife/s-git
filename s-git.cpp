@@ -27,6 +27,7 @@ static void initFuncTable() {
 	funcTable.emplace("log", LogCommand);
 	funcTable.emplace("branch", BranchCommand);
 	funcTable.emplace("ls-tree", LsTreeCommand);
+	funcTable.emplace("merge", MergeCommand);
 }
 
 static void usage() {
