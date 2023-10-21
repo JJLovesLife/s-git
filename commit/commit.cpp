@@ -118,7 +118,7 @@ int commitMain(int argc, const char* argv[]) {
 		std::vector<object> index;
 		auto treeOpt = build_tree(ROOT_DIR.value());  // file tree of s-git root directory
 
-		std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "NULL" ,  "NULL", message);
+		std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "" ,  "", message);
 		writeMain(newcommitSha1);
 
 		std::cout << "first commit  \n";
@@ -135,7 +135,7 @@ int commitMain(int argc, const char* argv[]) {
 		if (!readCommit(commitSha1, parentCommit)) {
 			auto treeOpt = build_tree(ROOT_DIR.value()); // file tree of s-git root directory
 
-			std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "NULL", "NULL", message);
+			std::string newcommitSha1 = writeCommit(treeOpt.has_value() ? treeOpt.value().sha1 : "", "", message);
 			writeMain(newcommitSha1);
 
 			std::cout << "first commit  \n";

@@ -55,8 +55,7 @@ bool deleteDir(fs::path path) {
 }
 
 void copyBranches(const fs::path& dir, const std::string& sha1) {
-	if (sha1 == "NULL") {
-
+	if (sha1 == "") {
 		return;
 	}
 	if (sha1Exist(sha1)) {
