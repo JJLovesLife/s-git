@@ -4,7 +4,6 @@
 #include <unordered_set>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <functional>
 
 int status(int argc, const char* argv[]);

@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <future>
+#include <vector>
 
 namespace fs = std::filesystem;
 
