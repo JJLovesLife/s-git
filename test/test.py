@@ -252,6 +252,7 @@ def main():
   try:
     TestInit()
     TestStatusNoCommit()
+    TestLog()
     TestStatusUntracked()
     shaFirstShort = TestCommitFirst()
     TestBranchAdd("master")
