@@ -274,6 +274,7 @@ def main():
     TestLog(["second", "first"])
     TestCheckoutSha(shaList[1])
     TestCheckoutRevision("main~1")
+    return True
   except TestFailed as exc:
     exc_traceback = sys.exc_info()
     traceback.print_exc()
@@ -284,7 +285,7 @@ def main():
       funcName = frame.name
       if funcName.startswith("Test"):
         logging.error(f"{funcName!r} does not pass the test")
-        break
+        return False
       idx -= 1
 
 if __name__ == "__main__":
@@ -295,5 +296,8 @@ if __name__ == "__main__":
   app = os.path.abspath(args.exe)
 
   LoadTmpDir()
-  main()
-  DeleteTmpDir()
+  try:
+    ret = main()
+  finally:
+    DeleteTmpDir()
+  sys.exit(0 if ret else 1)

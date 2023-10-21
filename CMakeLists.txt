@@ -36,4 +36,6 @@ add_executable(s-git ${MAIN_LIST}
 )
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	target_link_libraries(s-git stdc++fs)
+	find_package (Threads)
+	target_link_libraries (s-git ${CMAKE_THREAD_LIBS_INIT})
 endif()
