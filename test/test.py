@@ -252,7 +252,7 @@ def main():
   try:
     TestInit()
     TestStatusNoCommit()
-    TestLog(["second", "first"])
+    TestLog([])
     TestStatusUntracked()
     shaFirstShort = TestCommitFirst()
     TestBranchAdd("master")
@@ -293,8 +293,9 @@ if __name__ == "__main__":
   parser.add_argument("exe", metavar = "executable-path")
   args = parser.parse_args()
 
-  app = os.path.abspath(args.exe)
-
+  app = os.path.abspath('D:\learn\programming\s-git\s-git.exe')
+  
+  print(app)
   LoadTmpDir()
   main()
   DeleteTmpDir()
