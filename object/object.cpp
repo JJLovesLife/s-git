@@ -36,7 +36,11 @@ bool checkSha1(const std::string &sha1) {
 bool readCommit(const std::string &sha1, commit& thisCommit) {
 	if (sha1 == ""){
 		// not error, but also not commit
-		std::cerr << red << "Error: " << GIT_NAME << " your current branch 'master' does not have any commits yet" << Reset << std::endl;
+		// if this commit is empty ,then means there is no commit
+		if (thisCommit.sha1 == "") 
+			std::cerr << red << "Error: " << GIT_NAME << " your current branch 'master' does not have any commits yet" << Reset << std::endl;
+
+
 		return false;
 	}
 
