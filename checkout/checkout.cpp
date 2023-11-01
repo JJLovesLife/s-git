@@ -239,3 +239,35 @@ int checkoutMain(int argc, const char* argv[]) {
 
 	return 0;
 }
+
+int checkout(std::string branch){
+	auto resolveBranch = resolve(branch);
+	std::string sha1 = resolveBranch.has_value() ? resolveBranch.value() : readBranch(branch);
+	if (sha1.length() == 0) {
+		std::cerr << "Error:" << " doesn't have this branch :" << branch << "\n";
+		return 1;
+	}
+
+	deleteDir(ROOT_DIR.value());
+
+	commit  branchCommit;
+	readCommit(sha1, branchCommit);
+	copyBranches(ROOT_DIR.value(), branchCommit.tree);
+
+	if (resolveBranch.has_value()) {
+		// write HEAD
+		fs::path headDir = GIT_DIR.value() / "HEAD";
+		write_file(headDir, sha1.data(), sha1.size());
+	}
+	else {
+		// write head branchCommit.sha1
+		fs::path branchPath = fs::path("refs") / "heads" / branch;
+		fs::path headDir = GIT_DIR.value() / "HEAD";
+		std::string branchWrite = std::string{ "ref: " } +branchPath.generic_u8string();
+		write_file(headDir, branchWrite.data(), branchWrite.size());
+	}
+
+	std::cout << "Switched to branch '" << branch << '\'' << std::endl;
+	return 0;
+
+}
