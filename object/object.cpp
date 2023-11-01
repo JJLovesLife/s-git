@@ -36,7 +36,11 @@ bool checkSha1(const std::string &sha1) {
 bool readCommit(const std::string &sha1, commit& thisCommit) {
 	if (sha1 == ""){
 		// not error, but also not commit
-		std::cerr << red << "Error: " << GIT_NAME << " your current branch 'master' does not have any commits yet" << Reset << std::endl;
+		// if this commit is empty ,then means there is no commit
+		if (thisCommit.sha1 == "") 
+			std::cerr << red << "Error: " << GIT_NAME << " your current branch 'master' does not have any commits yet" << Reset << std::endl;
+
+
 		return false;
 	}
 
@@ -297,4 +301,55 @@ void copy_object_tofile(const fs::path& path, const std::string& sha1) {
 	
 	auto buffer = readRawFile(sha1);
 	if (buffer.has_value()) write_file(path, buffer.value());
+}
+
+std::optional<std::string> resolveBranch(std::string &branch) {
+	// return commit sha1
+	auto idx = branch.rfind('~');
+	if (idx == std::string::npos) {
+		return {};
+	}
+
+	int count;
+	try {
+		count = std::stoi(branch.substr(idx + 1));
+	}
+	catch (std::invalid_argument) {
+		return {};
+	}
+	catch (std::out_of_range) {
+		return {};
+	}
+
+	if (count < 0) {
+		return {};
+	}
+
+	auto name = branch.substr(0, idx);
+	if (count == 0) {
+		branch = name;
+		return {};
+	}
+
+	std::string commitSha1 = readBranch(name);
+	commit currCommit;
+	while (count-- != 0) {
+		if (!readCommit(commitSha1, currCommit)) {
+			return {};
+		}
+		commitSha1 = currCommit.parent;
+	}
+	return commitSha1;
+}
+
+struct commit Parent(struct commit child){
+	commit parentCommit;
+	if (!readCommit(child.parent, parentCommit)) {
+		return {};
+	}
+	return parentCommit;
+}
+int commitLength(const struct commit c){
+	if (c.parent == "") return 0;
+	else return 1 + commitLength(Parent(c));
 }
